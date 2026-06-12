@@ -112,8 +112,9 @@ class CityEngine {
       this.avenues.push({ axis: "h", at: c, lo, hi }); // varies in gx
     }
     this.cars = [];
+    const carsPerAve = window.innerWidth < 900 ? 2 : 3; // fewer streaks = lighter frames
     this.avenues.forEach((av) => {
-      const n = 5;
+      const n = carsPerAve;
       for (let i = 0; i < n; i++) {
         const dir = i % 2 === 0 ? 1 : -1;
         this.cars.push({
@@ -206,6 +207,12 @@ class CityEngine {
       }
     });
     c.addEventListener("pointerdown", (e) => {
+      // update pointer + hit-test at the press point so TOUCH taps (which fire
+      // no pointermove first) know what's under the finger.
+      const r = c.getBoundingClientRect();
+      this.pointer.x = e.clientX - r.left;
+      this.pointer.y = e.clientY - r.top;
+      this._hitTest();
       this.pointer.down = true; this.pointer.dragging = false;
       if (this.moonHover) {
         this.moonDrag = { sx: e.clientX, sy: e.clientY, ox: this.moonOffset.x, oy: this.moonOffset.y, moved: false };
@@ -214,15 +221,20 @@ class CityEngine {
       }
       c.setPointerCapture(e.pointerId);
     });
-    c.addEventListener("pointerup", () => {
+    c.addEventListener("pointerup", (e) => {
       this.pointer.down = false;
       if (this.moonDrag) {
-        if (!this.moonDrag.moved) this.onSelect("spotify"); // a click (not a drag) opens it
+        if (!this.moonDrag.moved) this.onSelect("spotify"); // a tap (not a drag) opens it
         this.moonDrag = null;
       } else if (!this.pointer.dragging && this.hoverId) {
         this.onSelect(this.hoverId);
       }
       this.dragStart = null;
+      // touch has no lingering hover — clear it so the tooltip doesn't stick
+      if (e.pointerType === "touch") {
+        this.pointer.x = -9999; this.pointer.y = -9999;
+        if (this.hoverId) { this.hoverId = null; this.onHover(null); }
+      }
     });
     c.addEventListener("pointerleave", () => {
       this.pointer.x = -9999; this.pointer.y = -9999;
@@ -238,6 +250,10 @@ class CityEngine {
   _resize() {
     this.cssW = this.canvas.clientWidth;
     this.cssH = this.canvas.clientHeight;
+    // cap device pixel ratio harder on phones — fewer pixels to push = smoother
+    const cap = this.cssW < 900 ? 1.5 : 2;
+    this.dpr = Math.min(window.devicePixelRatio || 1, cap);
+    this.lowFx = this.cssW < 900; // phones: trim soft-glow shadow passes
     this.canvas.width = Math.floor(this.cssW * this.dpr);
     this.canvas.height = Math.floor(this.cssH * this.dpr);
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
@@ -445,38 +461,34 @@ class CityEngine {
 
   _drawRoads(ctx, e) {
     // road beds (glowing avenues) + light-trail traffic
+    // roads: no shadowBlur — the wide translucent underlay + bright core fakes the glow
     ctx.save();
     ctx.lineCap = "round";
+    const sc = this.cam.scale;
     this.avenues.forEach((av) => {
       let a, b;
       if (av.axis === "v") { a = this.project(av.at, av.lo); b = this.project(av.at, av.hi); }
       else { a = this.project(av.lo, av.at); b = this.project(av.hi, av.at); }
-      ctx.shadowBlur = 8 * this.cam.scale;
-      ctx.shadowColor = `rgba(90,150,230,${0.4 * e})`;
-      ctx.strokeStyle = `rgba(70,110,190,${0.22 * e})`;
-      ctx.lineWidth = 7 * this.cam.scale; line(ctx, a, b);
-      ctx.shadowBlur = 0;
+      ctx.strokeStyle = `rgba(80,130,210,${0.16 * e})`;
+      ctx.lineWidth = 7 * sc; line(ctx, a, b);
       ctx.strokeStyle = `rgba(150,195,255,${0.34 * e})`;
-      ctx.lineWidth = 1.3 * this.cam.scale; line(ctx, a, b);
+      ctx.lineWidth = 1.3 * sc; line(ctx, a, b);
     });
-    ctx.restore();
 
-    // traffic streaks
-    ctx.save();
+    // traffic streaks: two cheap strokes (soft halo + bright core), no shadowBlur
     this.cars.forEach((car) => {
       const av = car.av;
-      const at = av.at, lo = av.lo, hi = av.hi;
+      const lo = av.lo, hi = av.hi, at = av.at;
       const p0 = car.p, p1 = clamp(car.p + car.len * car.dir, 0, 1);
       const coord = (p) => lo + (hi - lo) * p;
       let s, t;
       if (av.axis === "v") { s = this.project(at, coord(p0)); t = this.project(at, coord(p1)); }
       else { s = this.project(coord(p0), at); t = this.project(coord(p1), at); }
       const col = car.warm ? "255,120,90" : "150,220,255";
+      ctx.strokeStyle = `rgba(${col},${0.22 * e})`;
+      ctx.lineWidth = 5.5 * sc; line(ctx, s, t);
       ctx.strokeStyle = `rgba(${col},${0.95 * e})`;
-      ctx.lineWidth = 2.4 * this.cam.scale;
-      ctx.shadowBlur = 8 * this.cam.scale;
-      ctx.shadowColor = `rgba(${col},0.9)`;
-      line(ctx, s, t);
+      ctx.lineWidth = 2.2 * sc; line(ctx, s, t);
     });
     ctx.restore();
   }
@@ -531,7 +543,7 @@ class CityEngine {
     const alpha = (dimmed ? 0.55 : 1) * e;
     const st = {
       accent: b.accent, glow: b.glow, glowAmt, alpha, bright: hovered || active, b, PT, sc,
-      faceGlow: (hovered ? 18 : 9) * sc, edgeGlow: (hovered ? 20 : 9) * sc, lw: (hovered ? 2 : 1.4) * sc,
+      faceGlow: this.lowFx ? 0 : (hovered ? 18 : 9) * sc, edgeGlow: (hovered ? 20 : 9) * sc, lw: (hovered ? 2 : 1.4) * sc,
     };
 
     let apex;
