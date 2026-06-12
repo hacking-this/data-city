@@ -17,9 +17,10 @@ class CityEngine {
     this.PLOT = 1.5;           // building footprint side (grid units)
     this.GAP = 1.45;           // street width between plots (more breathing room)
     this.PITCH = this.PLOT + this.GAP;
-    this.R = 5;                // plot grid radius -> (2R+1)^2 plots
+    this.R = 7;                // plot grid radius -> bigger ground plane
 
     this.cam = { x: 0, y: 0, scale: 1, targetScale: 1, tx: 0, ty: 0 };
+    this.viewShiftX = 0;       // nudge city right to clear the left rail
     this.intro = 0;
     this.t = 0;
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -47,15 +48,21 @@ class CityEngine {
     const P = this.PITCH, PL = this.PLOT;
 
     // landmark slots: 3 columns x 2 rows of 2x2 blocks, evenly spaced
+    // Planned layout: HQ dead center, six districts in a symmetric ring
+    // around it, Platform Engineering as the outer frontier (east).
+    //            skills          pipeline
+    //   snowflake      [ HQ ]      databricks
+    //            analytics       ai-lab
+    //                 platform (future, front)
     const slots = {
-      "hq":         [-1, -1], // dead center — the heart of the city
-      "ai-lab":     [-4, 1],
-      "databricks": [-1, 1],
-      "snowflake":  [ 2, 1],
-      "pipeline":   [-4, -3],
-      "skills":     [-1, -3],
-      "analytics":  [ 2, -3],
-      "platform-eng": [4, -1], // frontier: new construction on the city's edge
+      "hq":           [-1, -1], // center
+      "skills":       [-5, -1], // upper-left
+      "pipeline":     [-1, -5], // upper-right
+      "snowflake":    [-4,  2], // left
+      "databricks":   [ 2, -4], // right
+      "analytics":    [-1,  3], // lower-left
+      "ai-lab":       [ 3, -1], // lower-right
+      "platform-eng": [ 3,  3], // front-center — the frontier, on the axis
     };
     const occupied = new Set(); // plot cells taken by landmarks
 
@@ -87,8 +94,8 @@ class CityEngine {
       for (let pj = -this.R; pj <= this.R; pj++) {
         // is this plot inside any landmark footprint? skip
         if (occupied.has(`${pi},${pj}`)) continue;
-        // leave plenty of open plazas/parks for a spacious skyline
-        if (rng() < 0.66) continue;
+        // sparse support skyline so the planned core stays uncluttered
+        if (rng() < 0.82) continue;
         const sz = PL * (0.6 + rng() * 0.34);
         const cx = pi * P, cy = pj * P;
         let h = 26 + rng() * 78;
@@ -163,7 +170,7 @@ class CityEngine {
   /* moon hangs above the city center, just over the tallest spire */
   _moonPos() {
     const s = this.cam.scale;
-    const x = this.cssW / 2 + (this.cam.x + this.moonOffset.x) * s;
+    const x = this.cssW / 2 + this.viewShiftX + (this.cam.x + this.moonOffset.x) * s;
     const topY = this.cssH / 2 + (this.worldMinY - this.worldCy + this.cam.y + this.moonOffset.y) * s;
     const r = this.moon.r * s;
     const drift = (this.reduceMotion || this.moonDrag) ? 0 : Math.sin(this.t * 0.25) * 6 * s;
@@ -176,7 +183,7 @@ class CityEngine {
     const wx = (gx - gy) * T;
     const wy = (gx + gy) * T * 0.5 - h;
     return {
-      x: this.cssW / 2 + (wx - this.worldCx + this.cam.x) * this.cam.scale,
+      x: this.cssW / 2 + this.viewShiftX + (wx - this.worldCx + this.cam.x) * this.cam.scale,
       y: this.cssH / 2 + (wy - this.worldCy + this.cam.y) * this.cam.scale,
     };
   }
@@ -255,11 +262,13 @@ class CityEngine {
     const cap = this.cssW < 900 ? 1.5 : 2;
     this.dpr = Math.min(window.devicePixelRatio || 1, cap);
     this.lowFx = this.cssW < 900; // phones: trim soft-glow shadow passes
+    // center the city in the stage to the right of the left rail
+    this.viewShiftX = this.cssW >= 900 ? 135 : 22;
     this.canvas.width = Math.floor(this.cssW * this.dpr);
     this.canvas.height = Math.floor(this.cssH * this.dpr);
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
 
-    const pad = this.cssW < 720 ? 0.96 : 0.84;
+    const pad = this.cssW < 720 ? 0.98 : 0.92;
     this.fitScale = Math.min((this.cssW * pad) / this.worldW, (this.cssH * pad) / this.worldH);
     this.cam.targetScale = this.fitScale;
     if (this.intro < 0.05) this.cam.scale = this.fitScale * 0.82;
