@@ -1,0 +1,9 @@
+# OS
+.DS_Store
+
+# Local dev preview (not needed for deploy)
+.claude/
+
+# Logs / deps (none currently, but safe)
+*.log
+node_modules/
