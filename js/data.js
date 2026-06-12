@@ -315,6 +315,53 @@ const CITY = {
     },
   ],
 
+  /* Facility 00 — the site itself, the engine credit. Not a building in
+     the city; it lives at the top of the rail as the meta-project that
+     proves the engineering claims the rest of the site makes. */
+  facility00: {
+    id: "facility-00",
+    name: "Facility 00 · This Site",
+    kicker: "Meta · The Engine",
+    accent: "#c8d4ff",
+    glow: "#ffffff",
+    overview:
+      "You're inside it. This portfolio is a hand-built isometric data city — no frameworks, no Three.js, no rendering library. One HTML file, one stylesheet, three small JS modules, and a custom 2D canvas engine that draws every building, every road, every photon of moonlight.",
+    why: "I wanted the site itself to be the strongest project on it — not a wrapper around a résumé, but evidence I can ship a polished, performant interactive system end-to-end.",
+    specs: [
+      { v: "0", k: "runtime dependencies" },
+      { v: "60fps", k: "target frame rate" },
+      { v: "1 canvas", k: "no DOM-per-building" },
+    ],
+    highlights: [
+      {
+        title: "Custom isometric projection",
+        desc: "Iso → screen transform with camera pan, zoom, and adaptive scaling. Painter's-algorithm depth sort so 100+ buildings stack correctly without a 3D library.",
+      },
+      {
+        title: "Polygon hit-testing on building faces",
+        desc: "Hover and tap detection ray-cast through each landmark's three visible quads (left, right, top), front-to-back. Mobile taps hit-test on pointerdown so touch-only devices select correctly.",
+      },
+      {
+        title: "Performance tiering",
+        desc: "Eliminated per-frame canvas shadowBlur on the road and traffic hot path — the main mobile bottleneck — and faked the glow with layered translucent strokes. DPR capped at 1.5 on phones. Landmark face-glow off on small screens; neon edges retained.",
+      },
+      {
+        title: "Procedural skyline",
+        desc: "Deterministic mulberry32 RNG seeds the filler buildings so the city is the same every load, but the layout looks organic. Sparse plot occupancy keeps the planned core readable.",
+      },
+      {
+        title: "Districts as data",
+        desc: "Each district is one object in data.js — geometry, content, accent color, building shape. Adding the Platform Engineering district was a 12-line change. Districts are content, not code.",
+      },
+      {
+        title: "Eight distinct building forms",
+        desc: "Stepped tower, crystalline spire, dome, drum arena, twin towers + sky bridge, reactor with energy rings, command spire with radar sweep, and an under-construction site with a tower crane — all built from primitives (frustums, cylinders, rings, pyramids), all in pure 2D canvas.",
+      },
+    ],
+    stack: ["Vanilla JS", "Canvas 2D", "Vanilla CSS", "No frameworks", "No build step"],
+    repo: "https://github.com/hacking-this/data-city",
+  },
+
   /* The moon above the skyline — the Spotify "Sound District". */
   spotify: {
     id: "spotify",

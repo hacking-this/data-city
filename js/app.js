@@ -41,6 +41,21 @@
     rail.appendChild(b);
   });
 
+  // Facility 00 — meta entry at the bottom of the rail, visually set apart
+  if (CITY.facility00) {
+    const sep = document.createElement("div");
+    sep.className = "rail-sep";
+    rail.appendChild(sep);
+    const b = document.createElement("button");
+    b.className = "rail-item rail-meta";
+    b.style.setProperty("--accent", CITY.facility00.accent);
+    b.innerHTML =
+      `<span class="meta-mark">⌥</span>` +
+      `<span class="rail-label">${CITY.facility00.name}</span>`;
+    b.addEventListener("click", () => openDistrict("facility-00"));
+    rail.appendChild(b);
+  }
+
   /* ---- hover tooltip ---- */
   function handleHover(id) {
     if (!id) { tip.classList.remove("show"); engine.setActive(panel.classList.contains("open") ? engine.activeId : null); return; }
@@ -74,18 +89,23 @@
 
   /* ---- panel ---- */
   function openDistrict(id) {
-    const d = id === "spotify" ? CITY.spotify : CITY.districts.find((x) => x.id === id);
+    let d;
+    if (id === "spotify") d = CITY.spotify;
+    else if (id === "facility-00") d = CITY.facility00;
+    else d = CITY.districts.find((x) => x.id === id);
     if (!d) return;
     // ensure we've entered the city
     if (!document.body.classList.contains("entered")) enterBtn.click();
 
-    engine.setActive(id);
-    engine.focus(id);
+    if (id !== "facility-00") { engine.setActive(id); engine.focus(id); }
     tip.classList.remove("show");
 
     panel.style.setProperty("--accent", d.accent);
     panel.style.setProperty("--glow", d.glow);
-    panelBody.innerHTML = d.isHQ ? renderHQ(d) : id === "spotify" ? renderSpotify(d) : renderDistrict(d);
+    panelBody.innerHTML = d.isHQ ? renderHQ(d)
+      : id === "spotify" ? renderSpotify(d)
+      : id === "facility-00" ? renderFacility(d)
+      : renderDistrict(d);
     panelBody.scrollTop = 0;
     panel.classList.add("open");
     scrim.classList.add("show");
@@ -251,6 +271,56 @@
         <button class="next-district" data-goto="${next.id}" style="--accent:${next.accent}">
           <span>Next district</span>
           <strong>${next.name} →</strong>
+        </button>
+      </footer>`;
+  }
+
+  /* ---- Facility 00 — the meta panel: this site itself ---- */
+  function renderFacility(d) {
+    const first = CITY.districts[0];
+    const specs = d.specs.map((s) => `
+      <div class="stat">
+        <div class="stat-v">${s.v}</div>
+        <div class="stat-k">${s.k}</div>
+      </div>`).join("");
+    return `
+      <header class="panel-head">
+        <div class="panel-kicker">${d.kicker}</div>
+        <h2 class="panel-title">${d.name}</h2>
+        <p class="panel-lede">${d.overview}</p>
+        <div class="stats">${specs}</div>
+      </header>
+      <section class="block">
+        <h3 class="block-title">Why</h3>
+        <p class="hq-future">${d.why}</p>
+      </section>
+      <section class="block">
+        <h3 class="block-title">What's actually inside</h3>
+        <div class="projects">
+          ${d.highlights.map((h) => `
+            <article class="project">
+              <h4>${h.title}</h4>
+              <p>${h.desc}</p>
+            </article>`).join("")}
+        </div>
+      </section>
+      <section class="block">
+        <h3 class="block-title">Stack</h3>
+        <div class="chips">${d.stack.map((s) => `<span class="chip">${s}</span>`).join("")}</div>
+      </section>
+      <section class="block">
+        <h3 class="block-title">Source</h3>
+        <a class="repo-cta" href="${d.repo}" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .5a12 12 0 00-3.79 23.4c.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.6-4.04-1.6-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.94 0-1.31.47-2.39 1.24-3.23-.13-.31-.54-1.54.12-3.21 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.67.25 2.9.12 3.21.77.84 1.24 1.92 1.24 3.23 0 4.62-2.8 5.63-5.48 5.93.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12 12 0 0012 .5z"/>
+          </svg>
+          <span>github.com/hacking-this/data-city</span>
+        </a>
+      </section>
+      <footer class="panel-foot">
+        <button class="next-district" data-goto="${first.id}" style="--accent:${first.accent}">
+          <span>Back to the city</span>
+          <strong>${first.name} →</strong>
         </button>
       </footer>`;
   }

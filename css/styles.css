@@ -413,6 +413,36 @@ body.panel-open .ground-hint { opacity: 0; }
 }
 .bolt { color: var(--accent); filter: drop-shadow(0 0 8px var(--glow)); }
 
+/* ---- facility 00 (meta rail item) ---- */
+.rail-sep {
+  height: 1px; margin: 6px 8px;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+}
+.rail-meta { color: var(--ink-dim); }
+.rail-meta .meta-mark {
+  width: 16px; height: 16px; flex-shrink: 0;
+  display: grid; place-items: center;
+  font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700;
+  color: transparent;
+  background: conic-gradient(from 45deg, #39c6ff, #b06bff, #ff48b0, #39c6ff);
+  -webkit-background-clip: text; background-clip: text;
+}
+.rail-meta:hover { color: var(--ink); }
+.rail-meta .rail-label { font-style: italic; opacity: 0.95; }
+
+.repo-cta {
+  display: inline-flex; align-items: center; gap: 11px;
+  padding: 13px 20px; border-radius: 14px; text-decoration: none;
+  color: var(--ink); font-family: "JetBrains Mono", monospace; font-size: 13px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--line);
+  transition: border-color 0.25s var(--ease), background 0.25s var(--ease), transform 0.25s var(--ease);
+}
+.repo-cta:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: rgba(255,255,255,0.06); transform: translateY(-1px);
+}
+.repo-cta svg { color: var(--glow); }
+
 /* ---- mission control HQ ---- */
 .rail-hq { position: relative; }
 .hq-mark {
