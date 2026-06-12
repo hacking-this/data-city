@@ -21,6 +21,8 @@ class CityEngine {
 
     this.cam = { x: 0, y: 0, scale: 1, targetScale: 1, tx: 0, ty: 0 };
     this.viewShiftX = 0;       // nudge city right to clear the left rail
+    this.viewShiftTarget = 0;
+    this.railCollapsed = false;
     this.intro = 0;
     this.t = 0;
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -35,7 +37,7 @@ class CityEngine {
     this.moon = { accent: "#a7ffcf", glow: "#e6fff0", r: 50, hover: false };
     this.moonHover = false;
     this.moonDrag = null;
-    this.moonOffset = { x: 360, y: -36 }; // diagonal: up & to the right of center (scene units)
+    this.moonOffset = { x: 330, y: -120 }; // diagonal: up & to the right of center (scene units)
 
     this._buildWorld();
     this._bindEvents();
@@ -174,7 +176,7 @@ class CityEngine {
     const topY = this.cssH / 2 + (this.worldMinY - this.worldCy + this.cam.y + this.moonOffset.y) * s;
     const r = this.moon.r * s;
     const drift = (this.reduceMotion || this.moonDrag) ? 0 : Math.sin(this.t * 0.25) * 6 * s;
-    return { x: x + drift, y: topY - 70 * s - r, r };
+    return { x: x + drift, y: topY - 110 * s - r, r };
   }
 
   /* ---- projection -------------------------------------------------- */
@@ -263,7 +265,9 @@ class CityEngine {
     this.dpr = Math.min(window.devicePixelRatio || 1, cap);
     this.lowFx = this.cssW < 900; // phones: trim soft-glow shadow passes
     // center the city in the stage to the right of the left rail
-    this.viewShiftX = this.cssW >= 900 ? 135 : 22;
+    this.viewShiftBase = this.cssW >= 900 ? 135 : 22;
+    this.viewShiftTarget = this.railCollapsed ? (this.cssW >= 900 ? 24 : 0) : this.viewShiftBase;
+    if (this.intro < 0.05) this.viewShiftX = this.viewShiftTarget;
     this.canvas.width = Math.floor(this.cssW * this.dpr);
     this.canvas.height = Math.floor(this.cssH * this.dpr);
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
@@ -276,6 +280,11 @@ class CityEngine {
 
   /* ---- public ------------------------------------------------------ */
   setActive(id) { this.activeId = id; }
+
+  setRailCollapsed(v) {
+    this.railCollapsed = v;
+    this.viewShiftTarget = v ? (this.cssW >= 900 ? 24 : 0) : (this.viewShiftBase || 0);
+  }
 
   focus(id) {
     const d = this.districts.find((x) => x.id === id);
@@ -315,6 +324,7 @@ class CityEngine {
       this.cam.x += (this.cam.tx - this.cam.x) * 0.08;
       this.cam.y += (this.cam.ty - this.cam.y) * 0.08;
     }
+    this.viewShiftX += (this.viewShiftTarget - this.viewShiftX) * 0.1;
     this.floatY = this.reduceMotion ? 0 : Math.sin(this.t * 0.4) * 5 * e;
 
     if (!this.reduceMotion) {

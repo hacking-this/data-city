@@ -58,6 +58,13 @@
     tip.style.top = (e.clientY - r.top) + "px";
   });
 
+  /* ---- collapse / expand the district rail ---- */
+  const railToggle = document.getElementById("rail-toggle");
+  railToggle.addEventListener("click", () => {
+    const collapsed = document.body.classList.toggle("rail-collapsed");
+    engine.setRailCollapsed(collapsed);
+  });
+
   /* ---- enter the city ---- */
   enterBtn.addEventListener("click", () => {
     hero.classList.add("dismiss");

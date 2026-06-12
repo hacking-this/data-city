@@ -101,6 +101,25 @@ body.entered .rail { opacity: 1; pointer-events: auto; }
 .rail-item:hover { background: rgba(255,255,255,0.05); color: var(--ink); }
 .rail-label { white-space: nowrap; }
 
+/* rail collapse toggle */
+.rail-toggle {
+  position: fixed; top: 50%; left: 290px; z-index: 26;
+  transform: translateY(-50%);
+  width: 30px; height: 50px; border-radius: 12px;
+  display: grid; place-items: center; cursor: pointer;
+  background: var(--glass); backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--line); color: var(--ink-dim);
+  opacity: 0; pointer-events: none;
+  transition: left 0.5s var(--ease), opacity 0.6s var(--ease) 0.2s, color 0.25s, background 0.25s;
+}
+.rail-toggle:hover { color: var(--ink); background: rgba(255,255,255,0.06); }
+.rail-toggle .chev { transition: transform 0.5s var(--ease); }
+body.entered .rail-toggle { opacity: 1; pointer-events: auto; }
+body.rail-collapsed .rail { transform: translateY(-50%) translateX(-130%); pointer-events: none; }
+body.rail-collapsed .rail-toggle { left: 16px; }
+body.rail-collapsed .rail-toggle .chev { transform: rotate(180deg); }
+body.panel-open .rail-toggle { opacity: 0; pointer-events: none; }
+
 /* ---- hover tooltip --------------------------------------------------- */
 .tip {
   position: fixed; z-index: 28; pointer-events: none;
@@ -505,6 +524,7 @@ body.panel-open .contact { opacity: 0; pointer-events: none; }
   .rail-label { display: none; }
   .rail-soon { display: none; }
   .rail-item { padding: 11px; }
+  .rail-toggle { left: 66px; }
   .topbar { padding: 16px 18px; }
   .contact { right: 14px; bottom: 14px; }
   .contact-tag { display: none; }
