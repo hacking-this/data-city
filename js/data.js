@@ -259,6 +259,34 @@ const CITY = {
       ],
       diagram: "stack",
     },
+
+    {
+      id: "platform-eng",
+      name: "Platform Engineering",
+      kicker: "Under Construction · Next District",
+      accent: "#ffae42",
+      glow: "#ffd591",
+      short: "Breaking ground — self-serve data platforms & developer experience.",
+      shape: "construction",
+      underConstruction: true,
+      status: "Under Construction",
+      grid: { x: 0, y: 0, w: 2, d: 2, h: 200 },
+      stats: [
+        { v: "2026", k: "breaking ground" },
+        { v: "Phase 1", k: "foundations" },
+        { v: "Self-serve", k: "north star" },
+      ],
+      overview:
+        "The newest district — still under construction. As pipelines mature, the next frontier is platform engineering: turning bespoke data plumbing into self-serve internal platforms, golden paths, and developer experience, so every team ships data products without reinventing the infrastructure.",
+      roadmap: [
+        { title: "Self-Serve Data Platform", desc: "Golden paths and templates so teams launch governed pipelines without touching infra." },
+        { title: "Internal Developer Portal", desc: "One pane for data assets, lineage, ownership, and SLAs — discoverability by default." },
+        { title: "Infrastructure as Code", desc: "Reproducible environments, CI/CD, and policy-as-code guardrails baked in." },
+        { title: "Observability & Reliability", desc: "SLOs, cost controls, and self-healing for data systems at scale." },
+      ],
+      plannedStack: ["Terraform", "Kubernetes", "Backstage", "ArgoCD", "GitHub Actions", "OpenTelemetry", "Docker"],
+      diagram: "platform",
+    },
   ],
 
   /* The moon above the skyline — the Spotify "Sound District". */
@@ -353,6 +381,15 @@ const DIAGRAMS = {
         ["Compute", "Spark · Snowflake"],
         ["Orchestrate", "Airflow"],
         ["Intelligence", "LLM · MCP"],
+      ])}
+    </svg>`,
+  platform: (c) => `
+    <svg viewBox="0 0 520 150" class="diagram" role="img" aria-label="Platform engineering">
+      ${flowBoxes(c, [
+        ["Teams", "self-serve"],
+        ["Golden Paths", "templates"],
+        ["IaC", "guardrails"],
+        ["Platform", "data products"],
       ])}
     </svg>`,
 };

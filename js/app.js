@@ -29,7 +29,9 @@
     const b = document.createElement("button");
     b.className = "rail-item";
     b.style.setProperty("--accent", d.accent);
-    b.innerHTML = `<span class="dot"></span><span class="rail-label">${d.name}</span>`;
+    b.innerHTML = `<span class="dot ${d.underConstruction ? "dot-wip" : ""}"></span>` +
+      `<span class="rail-label">${d.name}</span>` +
+      (d.underConstruction ? `<span class="rail-soon">SOON</span>` : "");
     b.addEventListener("click", () => openDistrict(d.id));
     b.addEventListener("mouseenter", () => { engine.setActive(d.id); });
     b.addEventListener("mouseleave", () => { if (!panel.classList.contains("open")) engine.setActive(null); });
@@ -184,27 +186,57 @@
 
     const diagram = DIAGRAMS[d.diagram] ? `
       <section class="block">
-        <h3 class="block-title">Architecture</h3>
+        <h3 class="block-title">${d.underConstruction ? "Planned Architecture" : "Architecture"}</h3>
         <div class="diagram-wrap">${DIAGRAMS[d.diagram](d.accent)}</div>
       </section>` : "";
 
+    const roadmap = d.roadmap ? `
+      <section class="block">
+        <h3 class="block-title">On The Roadmap</h3>
+        <div class="roadmap">
+          ${d.roadmap.map((r) => `
+            <div class="rm-item">
+              <span class="rm-marker"></span>
+              <div>
+                <div class="rm-title">${r.title}</div>
+                <p class="rm-desc">${r.desc}</p>
+              </div>
+            </div>`).join("")}
+        </div>
+      </section>` : "";
+
+    const plannedStack = d.plannedStack ? `
+      <section class="block">
+        <h3 class="block-title">Planned Stack</h3>
+        <div class="chips">${d.plannedStack.map((t) => `<span class="chip">${t}</span>`).join("")}</div>
+      </section>` : "";
+
+    const badge = d.underConstruction ? `
+      <div class="wip-badge"><span class="wip-dot"></span>${d.status || "Under Construction"}</div>` : "";
+
+    const achievementsBlock = (d.achievements && d.achievements.length) ? `
+      <section class="block">
+        <h3 class="block-title">Achievements</h3>
+        <ul class="achievements">${achievements}</ul>
+      </section>` : "";
+
     return `
-      <header class="panel-head">
+      <header class="panel-head ${d.underConstruction ? "is-wip" : ""}">
         <div class="panel-kicker">${d.kicker}</div>
+        ${badge}
         <h2 class="panel-title">${d.name}</h2>
         <p class="panel-lede">${d.overview}</p>
         <div class="stats">${stats}</div>
       </header>
       ${experience}
       ${projectsBlock}
+      ${roadmap}
       ${skills}
+      ${plannedStack}
       ${sideProjects}
       ${education}
       ${diagram}
-      <section class="block">
-        <h3 class="block-title">Achievements</h3>
-        <ul class="achievements">${achievements}</ul>
-      </section>
+      ${achievementsBlock}
       <footer class="panel-foot">
         <button class="next-district" data-goto="${next.id}" style="--accent:${next.accent}">
           <span>Next district</span>

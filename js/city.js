@@ -54,6 +54,7 @@ class CityEngine {
       "pipeline":   [-4, -3],
       "skills":     [-1, -3],
       "analytics":  [ 2, -3],
+      "platform-eng": [4, -1], // frontier: new construction on the city's edge
     };
     const occupied = new Set(); // plot cells taken by landmarks
 
@@ -574,6 +575,15 @@ class CityEngine {
         apex = PT(cx, cy, H);
         break;
       }
+      case "construction": {  // under-construction tower: base + scaffold + crane
+        this._hazardBase(ctx, cx, cy, hw, hd, st);
+        const baseH = H * 0.3;
+        this._prism(ctx, cx, cy, hw, hd, hw, hd, 0, baseH, st, [4, 3]); // completed floors
+        this._scaffold(ctx, cx, cy, hw, hd, baseH, H, st, 7);            // open frame above
+        this._crane(ctx, cx, cy, hw, hd, H, st);
+        apex = PT(cx, cy, H);
+        break;
+      }
       default: {
         const r = this._prism(ctx, cx, cy, hw, hd, hw, hd, 0, H, st, [5, 8]);
         apex = r.apexCenter;
@@ -695,6 +705,68 @@ class CityEngine {
         ctx.strokeStyle = hexA(st.glow, st.bright ? 1 : 0.82); ctx.lineWidth = st.lw; strokePoly(ctx, poly); ctx.shadowBlur = 0;
       }
     }
+    ctx.globalAlpha = 1;
+  }
+
+  // dashed hazard footprint outline on the ground
+  _hazardBase(ctx, cx, cy, hw, hd, st) {
+    const PT = st.PT;
+    const ring = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([s, t]) => PT(cx + s * hw, cy + t * hd, 0));
+    ctx.save();
+    ctx.globalAlpha = st.alpha * 0.75;
+    ctx.setLineDash([6 * st.sc, 4 * st.sc]);
+    ctx.shadowBlur = 8 * st.sc; ctx.shadowColor = st.glow;
+    ctx.strokeStyle = hexA(st.glow, 0.8); ctx.lineWidth = st.lw;
+    strokePoly(ctx, ring);
+    ctx.restore();
+  }
+
+  // open wireframe frame: corner struts + floor rings (the part still being built)
+  _scaffold(ctx, cx, cy, hw, hd, h0, h1, st, floors) {
+    const PT = st.PT;
+    const corner = (s, t, h) => PT(cx + s * hw, cy + t * hd, h);
+    const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+    ctx.save();
+    ctx.shadowBlur = st.edgeGlow * 0.55; ctx.shadowColor = st.glow;
+    // vertical corner struts
+    ctx.globalAlpha = st.alpha * 0.85;
+    ctx.strokeStyle = hexA(st.glow, st.bright ? 0.95 : 0.62); ctx.lineWidth = st.lw;
+    corners.forEach(([s, t]) => edge(ctx, corner(s, t, h0), corner(s, t, h1)));
+    // horizontal floor rings, fading toward the top (less built)
+    for (let i = 0; i <= floors; i++) {
+      const h = h0 + (h1 - h0) * (i / floors);
+      const ring = corners.map(([s, t]) => corner(s, t, h));
+      ctx.globalAlpha = st.alpha * (0.5 - 0.3 * (i / floors)) * (st.bright ? 1.3 : 1);
+      strokePoly(ctx, ring);
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  // a tower crane on top of the structure
+  _crane(ctx, cx, cy, hw, hd, H, st) {
+    const PT = st.PT;
+    const mast = H + 56;
+    const sway = this.reduceMotion ? 0 : Math.sin(this.t * 0.6) * 0.15;
+    const base = PT(cx, cy, H), top = PT(cx, cy, mast);
+    const jib = PT(cx + hw * (1.7 + sway), cy + hw * sway, mast);       // long arm
+    const tail = PT(cx - hw * 0.75, cy, mast);                          // counter-jib
+    ctx.save();
+    ctx.globalAlpha = st.alpha;
+    ctx.shadowBlur = st.edgeGlow * 0.5; ctx.shadowColor = st.glow;
+    ctx.strokeStyle = hexA(st.glow, 0.88); ctx.lineWidth = st.lw * 1.05;
+    edge(ctx, base, top);            // mast
+    edge(ctx, tail, jib);           // jib arm
+    edge(ctx, top, jib);            // tension cable
+    edge(ctx, top, tail);          // counter cable
+    // hook cable + block
+    const hookBot = PT(cx + hw * (1.7 + sway), cy + hw * sway, H * 0.55);
+    ctx.setLineDash([3 * st.sc, 3 * st.sc]); ctx.lineWidth = st.lw * 0.7;
+    edge(ctx, jib, hookBot);
+    ctx.setLineDash([]);
+    ctx.fillStyle = hexA(st.glow, 0.95);
+    ctx.beginPath(); ctx.arc(hookBot.x, hookBot.y, 2.6 * st.sc, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
     ctx.globalAlpha = 1;
   }
 
