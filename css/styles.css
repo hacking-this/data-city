@@ -394,6 +394,38 @@ body.panel-open .ground-hint { opacity: 0; }
 }
 .bolt { color: var(--accent); filter: drop-shadow(0 0 8px var(--glow)); }
 
+/* ---- mission control HQ ---- */
+.rail-hq { position: relative; }
+.hq-mark {
+  width: 12px; height: 12px; flex-shrink: 0;
+  background: conic-gradient(from 45deg, #39c6ff, #b06bff, #ff48b0, #39c6ff);
+  border-radius: 3px; transform: rotate(45deg);
+  box-shadow: 0 0 12px rgba(207,227,255,0.8);
+}
+.rail-hq .rail-label { font-weight: 600; color: var(--ink); }
+.hq-head .hq-role {
+  font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.26em;
+  text-transform: uppercase; color: var(--glow); margin: 4px 0 16px;
+  text-shadow: 0 0 20px rgba(255,255,255,0.4);
+}
+.hq-mission {
+  margin: 0; padding: 18px 22px; border-radius: 14px;
+  border-left: 3px solid color-mix(in srgb, var(--accent) 80%, transparent);
+  background: rgba(255,255,255,0.03);
+  font-family: "Sora", sans-serif; font-size: 18px; line-height: 1.5; font-weight: 600;
+  color: var(--ink);
+}
+.hq-future { font-size: 15px; line-height: 1.62; color: var(--ink-dim); }
+.hq-contact { display: flex; flex-wrap: wrap; gap: 10px; }
+.hq-contact a {
+  font-size: 14px; font-weight: 600; text-decoration: none; color: #06070f;
+  padding: 11px 20px; border-radius: 100px;
+  background: linear-gradient(180deg, #eaf4ff, #b9d4ff);
+  box-shadow: 0 8px 24px rgba(127,200,255,0.28);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.hq-contact a:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(127,200,255,0.45); }
+
 /* ---- spotify / moon panel ---- */
 .moon-card {
   position: relative; overflow: hidden;

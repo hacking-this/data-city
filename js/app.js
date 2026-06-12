@@ -27,10 +27,13 @@
   /* ---- district rail ---- */
   CITY.districts.forEach((d) => {
     const b = document.createElement("button");
-    b.className = "rail-item";
+    b.className = "rail-item" + (d.isHQ ? " rail-hq" : "");
     b.style.setProperty("--accent", d.accent);
-    b.innerHTML = `<span class="dot ${d.underConstruction ? "dot-wip" : ""}"></span>` +
-      `<span class="rail-label">${d.name}</span>` +
+    const marker = d.isHQ
+      ? `<span class="hq-mark"></span>`
+      : `<span class="dot ${d.underConstruction ? "dot-wip" : ""}"></span>`;
+    b.innerHTML = marker +
+      `<span class="rail-label">${d.railLabel || d.name}</span>` +
       (d.underConstruction ? `<span class="rail-soon">SOON</span>` : "");
     b.addEventListener("click", () => openDistrict(d.id));
     b.addEventListener("mouseenter", () => { engine.setActive(d.id); });
@@ -75,7 +78,7 @@
 
     panel.style.setProperty("--accent", d.accent);
     panel.style.setProperty("--glow", d.glow);
-    panelBody.innerHTML = id === "spotify" ? renderSpotify(d) : renderDistrict(d);
+    panelBody.innerHTML = d.isHQ ? renderHQ(d) : id === "spotify" ? renderSpotify(d) : renderDistrict(d);
     panelBody.scrollTop = 0;
     panel.classList.add("open");
     scrim.classList.add("show");
@@ -241,6 +244,51 @@
         <button class="next-district" data-goto="${next.id}" style="--accent:${next.accent}">
           <span>Next district</span>
           <strong>${next.name} →</strong>
+        </button>
+      </footer>`;
+  }
+
+  /* ---- mission control HQ panel ---- */
+  function renderHQ(d) {
+    const c = CITY.contact;
+    const links = [`<a href="mailto:${c.email}">Email</a>`]
+      .concat(c.links.map((l) => `<a href="${l.href}" target="_blank" rel="noopener">${l.label}</a>`))
+      .join("");
+    return `
+      <header class="panel-head hq-head">
+        <div class="panel-kicker">${d.kicker}</div>
+        <h2 class="panel-title">${d.name}</h2>
+        <div class="hq-role">${d.role}</div>
+        <p class="panel-lede">${d.summary}</p>
+      </header>
+      <section class="block">
+        <h3 class="block-title">Currently</h3>
+        <article class="xp">
+          <div class="xp-head">
+            <div>
+              <div class="xp-role">${d.current.role}</div>
+              <div class="xp-org">${d.current.org} · ${d.current.location}</div>
+            </div>
+            <div class="xp-period">${d.current.period}</div>
+          </div>
+        </article>
+      </section>
+      <section class="block">
+        <h3 class="block-title">Mission</h3>
+        <blockquote class="hq-mission">${d.mission}</blockquote>
+      </section>
+      <section class="block">
+        <h3 class="block-title">Where I'm Headed</h3>
+        <p class="hq-future">${d.future}</p>
+      </section>
+      <section class="block">
+        <h3 class="block-title">Direct Line</h3>
+        <div class="hq-contact">${links}</div>
+      </section>
+      <footer class="panel-foot">
+        <button class="next-district" data-goto="databricks" style="--accent:#ff5b3a">
+          <span>Start exploring</span>
+          <strong>Databricks Tower →</strong>
         </button>
       </footer>`;
   }

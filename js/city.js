@@ -48,6 +48,7 @@ class CityEngine {
 
     // landmark slots: 3 columns x 2 rows of 2x2 blocks, evenly spaced
     const slots = {
+      "hq":         [-1, -1], // dead center — the heart of the city
       "ai-lab":     [-4, 1],
       "databricks": [-1, 1],
       "snowflake":  [ 2, 1],
@@ -587,6 +588,23 @@ class CityEngine {
         apex = PT(cx, cy, H);
         break;
       }
+      case "hq": {            // Mission Control: command spire + rings + radar
+        this._prism(ctx, cx, cy, hw, hd, hw * 0.9, hd * 0.9, 0, H * 0.1, st, [4, 2]);            // plinth
+        this._prism(ctx, cx, cy, hw * 0.5, hd * 0.5, hw * 0.34, hd * 0.34, H * 0.1, H * 0.6, st, [3, 11]); // tapered shaft
+        this._prism(ctx, cx, cy, hw * 0.58, hd * 0.58, hw * 0.5, hd * 0.5, H * 0.6, H * 0.72, st, [4, 2]);  // observation deck
+        this._prism(ctx, cx, cy, hw * 0.3, hd * 0.3, hw * 0.16, hd * 0.16, H * 0.72, H * 0.88, st, [2, 3]); // crown
+        this._ring(ctx, cx, cy, hw * 1.06, hd * 1.06, H * 0.5, st);   // holographic orbit rings
+        this._ring(ctx, cx, cy, hw * 0.86, hd * 0.86, H * 0.69, st);
+        this._radar(ctx, cx, cy, hw * 0.98, hd * 0.98, H * 0.66, st); // rotating sweep
+        const mastTop = PT(cx, cy, H * 1.06);
+        ctx.save();
+        ctx.globalAlpha = alpha; ctx.shadowBlur = st.edgeGlow; ctx.shadowColor = st.glow;
+        ctx.strokeStyle = hexA(st.glow, 0.92); ctx.lineWidth = st.lw;
+        edge(ctx, PT(cx, cy, H * 0.88), mastTop);
+        ctx.restore();
+        apex = mastTop;
+        break;
+      }
       case "construction": {  // under-construction tower: base + scaffold + crane
         this._hazardBase(ctx, cx, cy, hw, hd, st);
         const baseH = H * 0.3;
@@ -778,6 +796,27 @@ class CityEngine {
     ctx.setLineDash([]);
     ctx.fillStyle = hexA(st.glow, 0.95);
     ctx.beginPath(); ctx.arc(hookBot.x, hookBot.y, 2.6 * st.sc, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  // rotating radar sweep at the HQ deck
+  _radar(ctx, cx, cy, rx, ry, h, st) {
+    const PT = st.PT;
+    const ang = this.reduceMotion ? 0.7 : (this.t * 0.85) % (Math.PI * 2);
+    const c0 = PT(cx, cy, h);
+    ctx.save();
+    ctx.globalAlpha = st.alpha;
+    for (let i = 4; i >= 1; i--) {          // fading trail
+      const a = ang - i * 0.13;
+      const p = PT(cx + rx * Math.cos(a), cy + ry * Math.sin(a), h);
+      ctx.strokeStyle = hexA(st.glow, 0.42 * (1 - i / 5)); ctx.lineWidth = st.lw;
+      edge(ctx, c0, p);
+    }
+    const pl = PT(cx + rx * Math.cos(ang), cy + ry * Math.sin(ang), h);
+    ctx.shadowBlur = this.lowFx ? 0 : 10 * st.sc; ctx.shadowColor = st.glow;
+    ctx.strokeStyle = hexA(st.glow, 0.95); ctx.lineWidth = st.lw * 1.15; edge(ctx, c0, pl);
+    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(pl.x, pl.y, 2.4 * st.sc, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
     ctx.globalAlpha = 1;
   }

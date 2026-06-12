@@ -12,6 +12,32 @@ const CITY = {
 
   districts: [
     {
+      id: "hq",
+      isHQ: true,
+      name: "Akshat Shukla",
+      railLabel: "Mission Control",
+      role: "Data Engineer · AI Builder",
+      kicker: "Mission Control · HQ",
+      accent: "#cfe3ff",
+      glow: "#ffffff",
+      short: "Mission Control — the engineer behind the city.",
+      shape: "hq",
+      grid: { x: 0, y: 0, w: 2, d: 2, h: 322 },
+      summary:
+        "Data Engineer with 2+ years building scalable pipelines and analytics platforms on Databricks, Apache Spark, and Snowflake — and, increasingly, the AI agents and platforms that run on top of them. I design data infrastructure people can trust.",
+      current: {
+        role: "Data Engineer",
+        org: "EY Global Delivery Services",
+        location: "Bengaluru, India",
+        period: "Feb 2024 – Present",
+      },
+      mission:
+        "Turn messy, bespoke data plumbing into infrastructure people can trust — and platforms teams can build on without thinking about the wiring.",
+      future:
+        "Heading toward platform & agentic-AI engineering: self-serve data platforms, LLM-powered agents, and the systems that let intelligence run on reliable data.",
+    },
+
+    {
       id: "databricks",
       name: "Databricks Tower",
       kicker: "Lakehouse Core",
