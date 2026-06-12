@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Akshat Shukla — Data Engineer | Databricks · Snowflake · Spark</title>
+  <meta name="description" content="Akshat Shukla — Data Engineer at EY Global Delivery Services, Bengaluru. 2+ years building scalable ETL pipelines on Databricks, Apache Spark, and Snowflake. Processed 25M+ records daily; cut pipeline runtime 40% via partitioning and broadcast joins; reduced reprocessing 75% with Apache Iceberg." />
+  <meta name="author" content="Akshat Shukla" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="keywords" content="Data Engineer, Databricks, Apache Spark, PySpark, Snowflake, Apache Iceberg, Delta Lake, ETL, Python, SQL, Airflow, Azure, AWS, Bengaluru, India" />
+  <meta name="theme-color" content="#06070f" />
+
+  <meta property="og:type" content="profile" />
+  <meta property="og:title" content="Akshat Shukla — Data Engineer · Databricks · Snowflake · Spark" />
+  <meta property="og:description" content="Data Engineer at EY Global Delivery Services, Bengaluru. Databricks · Apache Spark · Snowflake · Apache Iceberg. The flat résumé view." />
+  <meta property="og:url" content="https://data-city.vercel.app/resume" />
+  <meta property="og:image" content="https://data-city.vercel.app/assets/og.png" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Akshat Shukla — Data Engineer" />
+  <meta name="twitter:description" content="Databricks · Spark · Snowflake · Iceberg. The flat résumé view." />
+  <meta name="twitter:image" content="https://data-city.vercel.app/assets/og.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Structured data: Schema.org Person — ATS + SEO friendly -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Akshat Shukla",
+    "jobTitle": "Data Engineer",
+    "email": "akshatshukla.work411@gmail.com",
+    "telephone": "+91-7979906648",
+    "url": "https://data-city.vercel.app/resume",
+    "image": "https://data-city.vercel.app/assets/og.png",
+    "sameAs": [
+      "https://www.linkedin.com/in/akshatshukla411",
+      "https://github.com/hacking-this"
+    ],
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Bengaluru",
+      "addressRegion": "Karnataka",
+      "addressCountry": "IN"
+    },
+    "worksFor": {
+      "@type": "Organization",
+      "name": "EY Global Delivery Services"
+    },
+    "alumniOf": {
+      "@type": "CollegeOrUniversity",
+      "name": "Vellore Institute of Technology",
+      "department": "B.Tech, Computer Science"
+    },
+    "knowsAbout": [
+      "Data Engineering","Databricks","Apache Spark","PySpark","Snowflake",
+      "Apache Iceberg","Delta Lake","ETL","Data Warehousing","Python","SQL",
+      "Apache Airflow","Azure","AWS","Docker","CI/CD","LLMs","MCP"
+    ],
+    "hasCredential": [
+      "Databricks Certified Data Engineer Professional",
+      "Databricks Certified Data Engineer Associate",
+      "Microsoft Certified: Azure AI Fundamentals (AI-900)",
+      "Microsoft Certified: Azure Fundamentals (AZ-900)",
+      "Microsoft Certified: GitHub Copilot (GH-300)"
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #06070f;
+      --ink: #eaf0ff;
+      --ink-dim: #95a0c0;
+      --ink-faint: #5a6486;
+      --line: rgba(120, 140, 200, 0.16);
+      --accent: #7fe0ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); color: var(--ink); }
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.55;
+      padding: 56px 24px 80px;
+    }
+    .wrap { max-width: 780px; margin: 0 auto; }
+
+    /* nav */
+    .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; }
+    .brand { display: flex; align-items: center; gap: 11px; font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.28em; color: var(--ink-dim); text-decoration: none; }
+    .brand-mark { width: 11px; height: 11px; border-radius: 3px; background: conic-gradient(from 45deg, #39c6ff, #b06bff, #ff48b0, #39c6ff); }
+    .nav-cta { font-size: 13px; color: var(--accent); text-decoration: none; border: 1px solid var(--line); padding: 9px 16px; border-radius: 100px; transition: all 0.2s ease; }
+    .nav-cta:hover { color: var(--ink); border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+
+    /* hero / header */
+    h1 { font-family: "Sora", sans-serif; font-weight: 800; font-size: clamp(38px, 6.5vw, 58px); letter-spacing: -0.02em; line-height: 1.04; background: linear-gradient(180deg, #fff, #c8d4ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .role { font-family: "JetBrains Mono", monospace; font-size: 13.5px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--accent); margin: 12px 0 22px; }
+    .summary { font-size: 16.5px; color: var(--ink-dim); max-width: 680px; }
+    .contact-list { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 24px; font-size: 14px; color: var(--ink-dim); }
+    .contact-list a, .contact-list span { color: var(--ink); text-decoration: none; }
+    .contact-list a:hover { color: var(--accent); }
+    .contact-list li { list-style: none; display: inline-flex; align-items: center; gap: 7px; }
+    .contact-list li:not(:last-child)::after { content: ""; }
+    .contact-label { color: var(--ink-faint); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    /* sections */
+    h2 { font-family: "JetBrains Mono", monospace; font-size: 12.5px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-faint); margin: 56px 0 18px; display: flex; align-items: center; gap: 12px; }
+    h2::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+    .about p { font-size: 15.5px; color: var(--ink-dim); max-width: 720px; }
+    .about p + p { margin-top: 12px; }
+
+    /* certifications — listed early */
+    .certs { display: flex; flex-direction: column; gap: 10px; }
+    .certs li { list-style: none; font-size: 15px; color: var(--ink); display: flex; align-items: baseline; gap: 12px; }
+    .certs li .cert-issuer { color: var(--ink-faint); font-size: 13px; }
+    .certs li::before { content: "▸"; color: var(--accent); }
+
+    /* experience */
+    .job { padding: 24px 0; border-top: 1px solid var(--line); }
+    .job:first-of-type { border-top: 0; padding-top: 6px; }
+    .job-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: baseline; }
+    .job-role { font-family: "Sora", sans-serif; font-size: 19px; font-weight: 700; }
+    .job-org { color: var(--ink-dim); font-size: 14.5px; margin-top: 3px; }
+    .job-period { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--accent); white-space: nowrap; }
+    .job-points { list-style: none; margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .job-points li { padding-left: 18px; position: relative; font-size: 14.5px; color: var(--ink-dim); line-height: 1.6; }
+    .job-points li::before { content: ""; position: absolute; left: 0; top: 9px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+    .job-points strong { color: var(--ink); font-weight: 600; }
+
+    /* projects */
+    .proj { padding: 18px 0; border-top: 1px solid var(--line); }
+    .proj:first-of-type { border-top: 0; padding-top: 4px; }
+    .proj-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+    .proj h3 { font-family: "Sora", sans-serif; font-size: 16.5px; font-weight: 700; }
+    .proj p { font-size: 14.5px; color: var(--ink-dim); margin: 8px 0 10px; }
+    .proj-stack { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--ink-faint); }
+    .proj-stack strong { color: var(--accent); font-weight: 500; }
+    .proj-link { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--accent); text-decoration: none; }
+    .proj-link:hover { color: var(--ink); }
+
+    /* skills — flat ATS-friendly text rows */
+    .skills-list { display: flex; flex-direction: column; gap: 10px; }
+    .skill-row { display: flex; gap: 16px; align-items: baseline; font-size: 14.5px; flex-wrap: wrap; }
+    .skill-row .skill-key {
+      flex-shrink: 0;
+      width: 165px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12.5px;
+      color: var(--ink-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .skill-row .skill-val { color: var(--ink); flex: 1; min-width: 0; }
+
+    /* education */
+    .edu { display: flex; justify-content: space-between; gap: 18px; align-items: baseline; flex-wrap: wrap; }
+    .edu-degree { font-family: "Sora", sans-serif; font-size: 17px; font-weight: 700; }
+    .edu-school { color: var(--ink-dim); font-size: 14.5px; margin-top: 2px; }
+    .edu-period { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--accent); }
+    .edu-note { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--accent); margin-top: 6px; }
+
+    footer { margin-top: 72px; padding-top: 32px; border-top: 1px solid var(--line); color: var(--ink-faint); font-size: 12.5px; display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { color: var(--ink); }
+
+    /* print + ATS — clean black text on white for parsing */
+    @media print {
+      body { background: #fff; color: #000; padding: 24px; font-size: 11pt; line-height: 1.45; }
+      .wrap { max-width: none; }
+      .nav-cta, .nav { display: none; }
+      h1 { color: #000; background: none; -webkit-text-fill-color: #000; font-size: 26pt; }
+      .role { color: #000; font-size: 11pt; }
+      .summary, .about p, .job-points li, .proj p, .edu-school, .job-org, footer { color: #222; }
+      h2 { color: #000; margin: 22pt 0 8pt; font-size: 10.5pt; }
+      h2::after { background: #999; }
+      .job-period, .edu-period, .edu-note, .proj-link, .proj-stack strong { color: #000; }
+      .job-points li::before, .certs li::before { background: #000; box-shadow: none; color: #000; }
+      .skill-row .skill-key, .contact-label, .proj-stack { color: #444; }
+      .skill-row .skill-val, .certs li, .contact-list a, .contact-list span { color: #000; }
+      a[href]::after { content: " (" attr(href) ")"; font-size: 9pt; color: #555; }
+      a[href^="mailto:"]::after, a[href^="tel:"]::after, a[href^="/"]::after, a[href*="data-city.vercel.app"]::after { content: ""; }
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 32px 18px 60px; }
+      .skill-row .skill-key { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav" aria-label="Site">
+      <a href="/" class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>AKSHAT SHUKLA</span>
+      </a>
+      <a href="/" class="nav-cta">↗ Explore the city</a>
+    </nav>
+
+    <header>
+      <h1>Akshat Shukla</h1>
+      <div class="role">Data Engineer · Databricks · Snowflake · Spark</div>
+      <p class="summary">Data Engineer with 2+ years building scalable ETL pipelines and analytics infrastructure on <strong>Databricks, Apache Spark, and Snowflake</strong>. Migrated enterprise data from Oracle DB2 to Snowflake processing <strong>25M+ records daily</strong>, optimized distributed Spark workloads to cut pipeline runtime by <strong>40%</strong>, and implemented Apache Iceberg architecture to reduce data reprocessing effort by <strong>75%</strong>. Currently building agentic-AI tooling on top of trusted data infrastructure.</p>
+
+      <ul class="contact-list" aria-label="Contact">
+        <li><span class="contact-label">Email:</span> <a href="mailto:akshatshukla.work411@gmail.com">akshatshukla.work411@gmail.com</a></li>
+        <li><span class="contact-label">Phone:</span> <a href="tel:+917979906648">+91-79799-06648</a></li>
+        <li><span class="contact-label">Location:</span> <span>Bengaluru, India</span></li>
+        <li><span class="contact-label">LinkedIn:</span> <a href="https://www.linkedin.com/in/akshatshukla411" target="_blank" rel="noopener">linkedin.com/in/akshatshukla411</a></li>
+        <li><span class="contact-label">GitHub:</span> <a href="https://github.com/hacking-this" target="_blank" rel="noopener">github.com/hacking-this</a></li>
+        <li><span class="contact-label">PDF:</span> <a href="/assets/Akshat_Shukla_Resume.pdf" target="_blank">Download résumé</a></li>
+      </ul>
+    </header>
+
+    <section class="about" aria-labelledby="about-h">
+      <h2 id="about-h">About</h2>
+      <p>I design data infrastructure that production teams can trust. My day-to-day is building Spark-based ETL on Databricks, modeling and migrating data into Snowflake (with Iceberg for schema evolution), and orchestrating it all with Apache Airflow. I lean toward measurable wins — cost reductions, latency cuts, pipeline reliability — and reusable patterns over one-off scripts.</p>
+      <p>Outside the day job I build AI agents and Model Context Protocol (MCP) tools on top of LLMs. I'm heading toward platform &amp; agentic-AI engineering — self-serve data platforms and the systems that let intelligence run on reliable data.</p>
+    </section>
+
+    <section aria-labelledby="cert-h">
+      <h2 id="cert-h">Certifications</h2>
+      <ul class="certs">
+        <li>Databricks Certified Data Engineer Professional <span class="cert-issuer">— Databricks</span></li>
+        <li>Databricks Certified Data Engineer Associate <span class="cert-issuer">— Databricks</span></li>
+        <li>Microsoft Certified: Azure AI Fundamentals (AI-900) <span class="cert-issuer">— Microsoft</span></li>
+        <li>Microsoft Certified: Azure Fundamentals (AZ-900) <span class="cert-issuer">— Microsoft</span></li>
+        <li>Microsoft Certified: GitHub Copilot (GH-300) <span class="cert-issuer">— Microsoft</span></li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="exp-h">
+      <h2 id="exp-h">Experience</h2>
+      <article class="job">
+        <div class="job-head">
+          <div>
+            <div class="job-role">Data Engineer</div>
+            <div class="job-org">EY Global Delivery Services · Bengaluru, India</div>
+          </div>
+          <div class="job-period">Feb 2024 – Present</div>
+        </div>
+        <ul class="job-points">
+          <li>Processed <strong>25M+ records daily</strong> by building scalable ETL pipelines on Databricks with Apache Spark and PySpark, migrating enterprise data from <strong>Oracle DB2 to Snowflake</strong>.</li>
+          <li>Cut pipeline runtime by <strong>40%</strong> by optimizing distributed Spark workloads with partitioning strategies and broadcast joins on large enterprise datasets.</li>
+          <li>Reduced data reprocessing effort by <strong>75%</strong> by implementing <strong>Apache Iceberg</strong> table architecture on Snowflake to support schema evolution and historical (time-travel) tracking.</li>
+          <li>Reduced manual deployment effort by <strong>99%</strong> by authoring a reusable library of Python data-processing utilities for standardization and ETL automation.</li>
+          <li>Accelerated SDLC productivity using GenAI tooling (GitHub Copilot) and integrated <strong>MCP servers with GitHub and Jira</strong> to auto-update contextual Jira tickets from code changes.</li>
+          <li>Owned scheduling and orchestration across <strong>Apache Airflow, Autosys, and Matillion</strong> for enterprise batch workloads.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section aria-labelledby="proj-h">
+      <h2 id="proj-h">Projects</h2>
+
+      <article class="proj">
+        <div class="proj-head">
+          <h3>Data City — Interactive Portfolio</h3>
+          <a class="proj-link" href="https://github.com/hacking-this/data-city" target="_blank" rel="noopener">github.com/hacking-this/data-city</a>
+        </div>
+        <p>Hand-built isometric data-city portfolio. Zero runtime dependencies — custom 2D canvas engine with isometric projection, polygon hit-testing, performance tiering (DPR cap, eliminated per-frame shadow-blur on hot path), and a procedural skyline. Holds 60fps on desktop and mobile.</p>
+        <div class="proj-stack"><strong>Stack:</strong> Vanilla JavaScript, Canvas 2D, HTML/CSS, no frameworks, no build step</div>
+      </article>
+
+      <article class="proj">
+        <div class="proj-head">
+          <h3>Master Trade AI — Data + Analytics Platform</h3>
+          <a class="proj-link" href="https://github.com/hacking-this" target="_blank" rel="noopener">github.com/hacking-this</a>
+        </div>
+        <p>End-to-end trading platform. Apache Airflow DAGs orchestrate market-data ETL with scheduled retraining and backtesting; Streamlit dashboards surface signals with LangChain-generated commentary; Docker + GitHub Actions for CI/CD.</p>
+        <div class="proj-stack"><strong>Stack:</strong> Python, Apache Airflow, Docker, Streamlit, LangChain, GitHub Actions</div>
+      </article>
+
+      <article class="proj">
+        <div class="proj-head">
+          <h3>WhatsApp AI Agent</h3>
+          <a class="proj-link" href="https://github.com/hacking-this" target="_blank" rel="noopener">github.com/hacking-this</a>
+        </div>
+        <p>Agentic personal assistant inside WhatsApp powered by Claude. Typed tool layer, scheduled morning/evening check-ins, goal planning, and persistent memory for long-running context.</p>
+        <div class="proj-stack"><strong>Stack:</strong> TypeScript, Node.js, Claude API, tool-use / function calling</div>
+      </article>
+
+      <article class="proj">
+        <div class="proj-head">
+          <h3>NEXUS — Personal Operating System</h3>
+          <a class="proj-link" href="https://github.com/hacking-this" target="_blank" rel="noopener">github.com/hacking-this</a>
+        </div>
+        <p>Telegram AI "chief of staff": daily planning, habit tracking, structured reviews, long-term memory, and AI coaching over a clean services architecture.</p>
+        <div class="proj-stack"><strong>Stack:</strong> Python, Telegram Bot API, LLM, SQLite</div>
+      </article>
+
+      <article class="proj">
+        <div class="proj-head">
+          <h3>MCP Servers — GitHub · Spotify · Jira</h3>
+          <a class="proj-link" href="https://github.com/hacking-this" target="_blank" rel="noopener">github.com/hacking-this</a>
+        </div>
+        <p>Built Model Context Protocol servers (GitHub, Spotify music assistant). At EY, integrated MCP with GitHub + Jira to auto-update contextual Jira tickets from code changes.</p>
+        <div class="proj-stack"><strong>Stack:</strong> Python, MCP, GenAI, automation</div>
+      </article>
+    </section>
+
+    <section aria-labelledby="skills-h">
+      <h2 id="skills-h">Skills</h2>
+      <div class="skills-list">
+        <div class="skill-row"><div class="skill-key">Data Engineering</div><div class="skill-val">Databricks, Apache Spark, PySpark, Snowflake, Apache Iceberg, Delta Lake, ETL Pipelines, Data Modeling, Schema Evolution, Data Warehousing</div></div>
+        <div class="skill-row"><div class="skill-key">Programming</div><div class="skill-val">Python, SQL, TypeScript, Bash</div></div>
+        <div class="skill-row"><div class="skill-key">Orchestration</div><div class="skill-val">Apache Airflow, Matillion, Autosys</div></div>
+        <div class="skill-row"><div class="skill-key">Cloud Platforms</div><div class="skill-val">Microsoft Azure, ADLS, AWS S3</div></div>
+        <div class="skill-row"><div class="skill-key">AI / GenAI</div><div class="skill-val">LLMs, Model Context Protocol (MCP), LangChain, Tool Use / Function Calling, GitHub Copilot</div></div>
+        <div class="skill-row"><div class="skill-key">DevOps &amp; Tools</div><div class="skill-val">Docker, Git, GitHub Actions, CI/CD</div></div>
+        <div class="skill-row"><div class="skill-key">Methodologies</div><div class="skill-val">Distributed Computing, Batch Processing, Pipeline Optimization, Cost Optimization, Data Quality</div></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="edu-h">
+      <h2 id="edu-h">Education</h2>
+      <div class="edu">
+        <div>
+          <div class="edu-degree">B.Tech, Computer Science</div>
+          <div class="edu-school">Vellore Institute of Technology</div>
+          <div class="edu-note">CGPA 7.9 / 10</div>
+        </div>
+        <div class="edu-period">2019 – 2023</div>
+      </div>
+    </section>
+
+    <footer>
+      <div>© Akshat Shukla · Bengaluru, India</div>
+      <div>
+        <a href="/">data-city.vercel.app</a>
+        · <a href="https://github.com/hacking-this/data-city" target="_blank" rel="noopener">source</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

@@ -217,7 +217,11 @@ body.panel-open .ground-hint { opacity: 0; }
 .hero-foot {
   margin-top: 30px; font-size: 12px; color: var(--ink-faint);
   letter-spacing: 0.06em;
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px;
 }
+.hero-sep { color: var(--line); }
+.hero-quiet-link { color: var(--ink-dim); text-decoration: none; transition: color 0.2s; }
+.hero-quiet-link:hover { color: var(--glow); }
 
 /* ---- scrim ----------------------------------------------------------- */
 .scrim {
