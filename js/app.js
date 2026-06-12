@@ -88,12 +88,17 @@
   });
 
   /* ---- panel ---- */
-  function openDistrict(id) {
+  function openDistrict(id, opts = {}) {
     let d;
     if (id === "spotify") d = CITY.spotify;
     else if (id === "facility-00") d = CITY.facility00;
     else d = CITY.districts.find((x) => x.id === id);
     if (!d) return;
+    // sync the URL so each district is shareable / linkable
+    if (!opts.fromRoute) {
+      const hash = "#/" + id;
+      if (location.hash !== hash) history.pushState({ id }, "", hash);
+    }
     // ensure we've entered the city
     if (!document.body.classList.contains("entered")) enterBtn.click();
 
@@ -117,12 +122,13 @@
     );
   }
 
-  function closePanel() {
+  function closePanel(opts = {}) {
     panel.classList.remove("open");
     scrim.classList.remove("show");
     document.body.classList.remove("panel-open");
     engine.setActive(null);
     engine.reset();
+    if (!opts.fromRoute && location.hash) history.pushState({}, "", location.pathname);
   }
   document.getElementById("panel-close").addEventListener("click", closePanel);
   scrim.addEventListener("click", closePanel);
@@ -417,6 +423,29 @@
         </button>
       </footer>`;
   }
+
+  /* ---- URL routing: deep-linkable districts ---- */
+  function applyRoute() {
+    const m = (location.hash || "").match(/^#\/(.+)$/);
+    if (!m) {
+      if (panel.classList.contains("open")) closePanel({ fromRoute: true });
+      return;
+    }
+    const id = m[1];
+    const known = id === "spotify" || id === "facility-00" ||
+      CITY.districts.some((d) => d.id === id);
+    if (!known) return;
+    // Deep link: skip the hero gate so the link lands where intended.
+    if (!document.body.classList.contains("entered")) {
+      document.body.classList.add("entered");
+      hero.classList.add("dismiss");
+      setTimeout(() => { hero.style.display = "none"; }, 50);
+    }
+    openDistrict(id, { fromRoute: true });
+  }
+  window.addEventListener("popstate", applyRoute);
+  // Fire after the first paint so the city/hero exist when a panel opens.
+  setTimeout(applyRoute, 0);
 
   /* ---- footer contact ---- */
   const contactLinks = document.getElementById("contact-links");

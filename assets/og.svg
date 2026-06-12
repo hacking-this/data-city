@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <!-- background -->
+    <radialGradient id="bg" cx="50%" cy="40%" r="80%">
+      <stop offset="0%" stop-color="#141033"/>
+      <stop offset="55%" stop-color="#0a0c1a"/>
+      <stop offset="100%" stop-color="#06070f"/>
+    </radialGradient>
+    <radialGradient id="lampL" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#39c6ff" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#39c6ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lampR" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff48b0" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#ff48b0" stop-opacity="0"/>
+    </radialGradient>
+    <!-- moon -->
+    <radialGradient id="moon" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="55%" stop-color="#e6fff0"/>
+      <stop offset="100%" stop-color="#a7ffcf"/>
+    </radialGradient>
+    <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#a7ffcf" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#a7ffcf" stop-opacity="0"/>
+    </radialGradient>
+    <!-- gradient text -->
+    <linearGradient id="name" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#c8d4ff"/>
+      <stop offset="100%" stop-color="#8ea2e6"/>
+    </linearGradient>
+    <!-- accent district fills -->
+    <linearGradient id="orange" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff7a4d"/><stop offset="100%" stop-color="#a83626"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7fe0ff"/><stop offset="100%" stop-color="#2387b8"/>
+    </linearGradient>
+    <linearGradient id="violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#cf9bff"/><stop offset="100%" stop-color="#6e3fb0"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5dffc6"/><stop offset="100%" stop-color="#0f9a6c"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe588"/><stop offset="100%" stop-color="#b08820"/>
+    </linearGradient>
+    <linearGradient id="magenta" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff86cf"/><stop offset="100%" stop-color="#a8217a"/>
+    </linearGradient>
+    <linearGradient id="white" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#8a96b8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- backdrop -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <ellipse cx="220" cy="500" rx="350" ry="200" fill="url(#lampL)"/>
+  <ellipse cx="980" cy="480" rx="320" ry="180" fill="url(#lampR)"/>
+
+  <!-- starfield (a sprinkle) -->
+  <g fill="#cfe0ff">
+    <circle cx="120" cy="80" r="1.2" opacity="0.6"/>
+    <circle cx="280" cy="40" r="0.9" opacity="0.4"/>
+    <circle cx="440" cy="110" r="1.1" opacity="0.5"/>
+    <circle cx="640" cy="60" r="0.8" opacity="0.35"/>
+    <circle cx="820" cy="130" r="1" opacity="0.5"/>
+    <circle cx="1020" cy="70" r="1.3" opacity="0.6"/>
+    <circle cx="1140" cy="120" r="0.9" opacity="0.4"/>
+    <circle cx="180" cy="200" r="0.8" opacity="0.35"/>
+    <circle cx="520" cy="180" r="1" opacity="0.45"/>
+    <circle cx="900" cy="220" r="0.9" opacity="0.4"/>
+  </g>
+
+  <!-- moon (Spotify district) -->
+  <g>
+    <circle cx="980" cy="160" r="120" fill="url(#moonGlow)"/>
+    <circle cx="980" cy="160" r="42" fill="url(#moon)"/>
+    <circle cx="980" cy="160" r="42" fill="none" stroke="#e6fff0" stroke-opacity="0.55" stroke-width="1"/>
+    <circle cx="966" cy="151" r="9" fill="#5fc99a" opacity="0.18"/>
+    <circle cx="990" cy="170" r="6" fill="#5fc99a" opacity="0.18"/>
+  </g>
+
+  <!-- iso skyline silhouette: a compact ring of the signature buildings -->
+  <g transform="translate(600 470)">
+    <!-- ground plane (faint diamond) -->
+    <path d="M -360 0 L 0 -180 L 360 0 L 0 180 Z" fill="none" stroke="#3a4d8a" stroke-opacity="0.25" stroke-width="1"/>
+    <path d="M -200 0 L 0 -100 L 200 0 L 0 100 Z" fill="none" stroke="#3a4d8a" stroke-opacity="0.18" stroke-width="1"/>
+
+    <!-- LEFT cluster: Snowflake (crystal spire, cyan) -->
+    <g transform="translate(-260 -10)">
+      <polygon points="-44,16 0,-8 44,16 0,40" fill="url(#cyan)" opacity="0.95"/>
+      <polygon points="-44,16 0,-8 0,-150 -22,-138" fill="#0f3a55"/>
+      <polygon points="44,16 0,-8 0,-150 22,-138" fill="#1c5a82"/>
+      <polygon points="0,-150 -22,-138 0,-220 22,-138" fill="#3aa1d8"/>
+      <line x1="0" y1="-150" x2="0" y2="-150" stroke="#7fe0ff" stroke-width="1.5"/>
+    </g>
+
+    <!-- LEFT-2: Analytics (drum arena, green) -->
+    <g transform="translate(-110 80)">
+      <ellipse cx="0" cy="14" rx="40" ry="14" fill="url(#green)"/>
+      <rect x="-40" y="-50" width="80" height="64" fill="#0f4c3a"/>
+      <ellipse cx="0" cy="-50" rx="40" ry="14" fill="url(#green)"/>
+      <ellipse cx="0" cy="-86" rx="26" ry="9" fill="url(#green)" opacity="0.7"/>
+      <rect x="-26" y="-94" width="52" height="8" fill="#0f4c3a"/>
+    </g>
+
+    <!-- CENTER: Mission Control HQ (command spire, white) - tallest -->
+    <g transform="translate(0 30)">
+      <polygon points="-44,16 0,-8 44,16 0,40" fill="url(#white)" opacity="0.95"/>
+      <!-- shaft -->
+      <polygon points="-30,0 -10,-200 10,-200 30,0" fill="#1f2842"/>
+      <polygon points="10,-200 30,0 36,0 16,-200" fill="#3a4878"/>
+      <polygon points="-30,0 -10,-200 -16,-200 -36,0" fill="#0f1530"/>
+      <!-- observation deck -->
+      <ellipse cx="0" cy="-200" rx="44" ry="10" fill="#4a5a90"/>
+      <ellipse cx="0" cy="-200" rx="44" ry="10" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+      <ellipse cx="0" cy="-225" rx="44" ry="9" fill="none" stroke="#ffffff" stroke-opacity="0.7" stroke-width="1.5"/>
+      <!-- mast -->
+      <line x1="0" y1="-225" x2="0" y2="-285" stroke="#ffffff" stroke-width="2"/>
+      <circle cx="0" cy="-290" r="4" fill="#ffffff"/>
+    </g>
+
+    <!-- RIGHT-2: AI Lab (dome, violet) -->
+    <g transform="translate(140 70)">
+      <polygon points="-44,16 0,-8 44,16 0,40" fill="url(#violet)" opacity="0.95"/>
+      <rect x="-36" y="-40" width="72" height="48" fill="#2f1f55"/>
+      <path d="M -36 -40 Q 0 -100 36 -40 Z" fill="url(#violet)"/>
+      <path d="M -36 -40 Q 0 -100 36 -40" fill="none" stroke="#cf9bff" stroke-width="1.5"/>
+    </g>
+
+    <!-- RIGHT: Databricks (stepped tower, orange) -->
+    <g transform="translate(280 0)">
+      <polygon points="-50,16 0,-12 50,16 0,44" fill="url(#orange)" opacity="0.95"/>
+      <rect x="-50" y="-20" width="100" height="36" fill="#7a2a1a"/>
+      <rect x="-38" y="-90" width="76" height="70" fill="#a83626"/>
+      <rect x="-24" y="-150" width="48" height="60" fill="#ff7a4d"/>
+      <line x1="0" y1="-150" x2="0" y2="-185" stroke="#ff7a4d" stroke-width="2"/>
+      <circle cx="0" cy="-188" r="3" fill="#ff7a4d"/>
+    </g>
+
+    <!-- BACK-RIGHT: Pipeline (twin towers, amber) -->
+    <g transform="translate(180 -120)" opacity="0.92">
+      <rect x="-46" y="-100" width="22" height="100" fill="url(#amber)"/>
+      <rect x="14" y="-90" width="22" height="90" fill="url(#amber)"/>
+      <rect x="-24" y="-50" width="38" height="6" fill="#b08820"/>
+    </g>
+
+    <!-- BACK-LEFT: Skills (reactor, magenta) -->
+    <g transform="translate(-200 -110)" opacity="0.92">
+      <rect x="-22" y="-90" width="44" height="90" fill="url(#magenta)"/>
+      <ellipse cx="0" cy="-40" rx="34" ry="9" fill="none" stroke="#ff86cf" stroke-width="1.5"/>
+      <ellipse cx="0" cy="-65" rx="30" ry="8" fill="none" stroke="#ff86cf" stroke-width="1.5"/>
+    </g>
+
+    <!-- ground glow streaks (data flowing) -->
+    <g opacity="0.6">
+      <line x1="-220" y1="20" x2="-90" y2="80" stroke="#39c6ff" stroke-width="1.5"/>
+      <line x1="-90" y1="-30" x2="90" y2="-30" stroke="#cfe3ff" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="90" y1="80" x2="240" y2="40" stroke="#ff7a4d" stroke-width="1.5"/>
+    </g>
+  </g>
+
+  <!-- TEXT BLOCK (left) -->
+  <g font-family="Inter, system-ui, sans-serif">
+    <!-- eyebrow chip -->
+    <g transform="translate(72 92)">
+      <rect x="0" y="0" width="252" height="34" rx="17" fill="rgba(255,255,255,0.04)" stroke="#2a3260"/>
+      <circle cx="20" cy="17" r="4" fill="#19e3a0"/>
+      <text x="36" y="22" fill="#95a0c0" font-family="JetBrains Mono, monospace" font-size="11" letter-spacing="2.2">DATA · CITY · ONLINE</text>
+    </g>
+
+    <!-- Name -->
+    <text x="72" y="225" fill="url(#name)" font-family="Sora, Inter, sans-serif" font-weight="800" font-size="92" letter-spacing="-2">Akshat Shukla</text>
+
+    <!-- Role -->
+    <text x="72" y="270" fill="#7fe0ff" font-family="JetBrains Mono, monospace" font-size="18" letter-spacing="5.2">DATA ENGINEER · AI BUILDER</text>
+
+    <!-- Tagline -->
+    <text x="72" y="346" fill="#c8d4ff" font-family="Sora, Inter, sans-serif" font-weight="500" font-size="32">Building cities powered by data.</text>
+
+    <!-- Footer -->
+    <g transform="translate(72 530)">
+      <text x="0" y="0" fill="#95a0c0" font-family="JetBrains Mono, monospace" font-size="14" letter-spacing="2.4">DATA-CITY.VERCEL.APP</text>
+      <text x="0" y="28" fill="#5a6486" font-family="Inter, sans-serif" font-size="14">8 districts · 0 dependencies · 60fps</text>
+    </g>
+  </g>
+</svg>
