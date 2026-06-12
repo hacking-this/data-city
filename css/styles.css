@@ -471,6 +471,7 @@ body.panel-open .contact { opacity: 0; pointer-events: none; }
 @media (max-width: 720px) {
   .rail { left: 12px; padding: 8px; }
   .rail-label { display: none; }
+  .rail-soon { display: none; }
   .rail-item { padding: 11px; }
   .topbar { padding: 16px 18px; }
   .contact { right: 14px; bottom: 14px; }

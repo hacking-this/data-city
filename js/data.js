@@ -319,7 +319,7 @@ const CITY = {
     email: "akshatshukla.work411@gmail.com",
     links: [
       { label: "GitHub", href: "https://github.com/hacking-this" },
-      { label: "LinkedIn", href: "https://linkedin.com/in/akshatshukla" },
+      { label: "LinkedIn", href: "https://www.linkedin.com/in/akshatshukla411" },
       { label: "Résumé", href: "assets/Akshat_Shukla_Resume.pdf" },
     ],
   },
