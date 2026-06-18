@@ -305,12 +305,23 @@ class CityEngine {
 
   start() {
     let last = performance.now();
+    let raf = 0, running = true;
     const loop = (now) => {
+      if (!running) return;
       const dt = Math.min((now - last) / 1000, 0.05); last = now;
       this._update(dt); this._render();
-      requestAnimationFrame(loop);
+      raf = requestAnimationFrame(loop);
     };
-    requestAnimationFrame(loop);
+    raf = requestAnimationFrame(loop);
+    // Hidden tab = no work. Resume cleanly without a big dt spike.
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        running = false; if (raf) cancelAnimationFrame(raf);
+      } else if (!running) {
+        running = true; last = performance.now();
+        raf = requestAnimationFrame(loop);
+      }
+    });
   }
 
   /* ---- update ------------------------------------------------------ */
@@ -319,13 +330,22 @@ class CityEngine {
     this.intro = Math.min(1, this.intro + dt / 1.8);
     const e = easeOutCubic(this.intro);
 
-    this.cam.scale += (this.cam.targetScale - this.cam.scale) * 0.08;
+    // Snappier camera easing + snap-when-close so the camera actually
+    // SETTLES instead of micro-easing forever (the main source of perceived
+    // jitter at 100/120Hz).
+    const E = 0.14, EPS = 0.15, EPS_SCALE = 0.0008;
+    this.cam.scale += (this.cam.targetScale - this.cam.scale) * E;
+    if (Math.abs(this.cam.targetScale - this.cam.scale) < EPS_SCALE) this.cam.scale = this.cam.targetScale;
     if (!this.pointer.down) {
-      this.cam.x += (this.cam.tx - this.cam.x) * 0.08;
-      this.cam.y += (this.cam.ty - this.cam.y) * 0.08;
+      this.cam.x += (this.cam.tx - this.cam.x) * E;
+      this.cam.y += (this.cam.ty - this.cam.y) * E;
+      if (Math.abs(this.cam.tx - this.cam.x) < EPS) this.cam.x = this.cam.tx;
+      if (Math.abs(this.cam.ty - this.cam.y) < EPS) this.cam.y = this.cam.ty;
     }
-    this.viewShiftX += (this.viewShiftTarget - this.viewShiftX) * 0.1;
-    this.floatY = this.reduceMotion ? 0 : Math.sin(this.t * 0.4) * 5 * e;
+    this.viewShiftX += (this.viewShiftTarget - this.viewShiftX) * E;
+    if (Math.abs(this.viewShiftTarget - this.viewShiftX) < EPS) this.viewShiftX = this.viewShiftTarget;
+    if (this.intro > 0.998) this.intro = 1;
+    this.floatY = 0; // ambient float removed for smoothness
 
     if (!this.reduceMotion) {
       this.cars.forEach((car) => { car.p += car.speed * car.dir * dt; if (car.p > 1) car.p -= 1; if (car.p < 0) car.p += 1; });
@@ -387,15 +407,13 @@ class CityEngine {
   }
 
   _drawSky(ctx) {
-    const g = ctx.createLinearGradient(0, 0, 0, this.cssH);
-    g.addColorStop(0, "rgba(8,10,24,0)");
-    g.addColorStop(0.6, "rgba(20,16,48,0.16)");
-    g.addColorStop(1, "rgba(8,10,24,0)");
-    ctx.fillStyle = g; ctx.fillRect(0, 0, this.cssW, this.cssH);
+    // Sky backdrop is handled by CSS .bg-grad / .bg-glow on <body>, so
+    // the canvas only paints the starfield. Twinkle removed — 110 sin
+    // calls per frame for a near-invisible shimmer is the wrong trade.
     const e = easeOutCubic(this.intro);
+    ctx.fillStyle = "#cfe0ff";
     this.stars.forEach((s) => {
-      const tw = this.reduceMotion ? 1 : (0.6 + 0.4 * Math.sin(this.t * 1.5 + s.tw));
-      ctx.globalAlpha = s.a * tw * e; ctx.fillStyle = "#cfe0ff";
+      ctx.globalAlpha = s.a * e;
       ctx.beginPath(); ctx.arc(s.x * this.cssW, s.y * this.cssH, s.r, 0, Math.PI * 2); ctx.fill();
     });
     ctx.globalAlpha = 1;
@@ -447,18 +465,34 @@ class CityEngine {
     ctx.restore();
   }
 
-  // subtle additive moonlight wash over the whole scene
+  // Build a fixed-size radial gradient ONCE and blit it via drawImage on
+  // every frame — much cheaper than computing a screen-sized radial
+  // gradient every tick.
+  _buildMoonWash() {
+    if (!this.moonWash) {
+      this.moonWash = document.createElement("canvas");
+      this.moonWashCtx = this.moonWash.getContext("2d");
+    }
+    const D = 512; // fixed; drawImage scales to screen
+    this.moonWash.width = D; this.moonWash.height = D;
+    const ctx = this.moonWashCtx;
+    const g = ctx.createRadialGradient(D / 2, D / 2, D / 24, D / 2, D / 2, D / 2);
+    g.addColorStop(0, hexA(this.moon.accent, 0.06));
+    g.addColorStop(0.5, hexA(this.moon.accent, 0.02));
+    g.addColorStop(1, hexA(this.moon.accent, 0));
+    ctx.fillStyle = g; ctx.fillRect(0, 0, D, D);
+  }
+
+  // subtle additive moonlight wash — single drawImage, no per-frame gradient
   _drawMoonlight(ctx, e) {
+    if (!this.moonWash) this._buildMoonWash();
     const m = this._moonPos();
+    const R = Math.max(this.cssW, this.cssH) * 0.95;
+    const D = R * 2;
     ctx.save();
     ctx.globalCompositeOperation = "lighter";
-    const R = Math.max(this.cssW, this.cssH) * 0.95;
-    const g = ctx.createRadialGradient(m.x, m.y, m.r, m.x, m.y, R);
-    g.addColorStop(0, hexA(this.moon.accent, (this.moonHover ? 0.07 : 0.045) * e));
-    g.addColorStop(0.5, hexA(this.moon.accent, 0.015 * e));
-    g.addColorStop(1, hexA(this.moon.accent, 0));
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, this.cssW, this.cssH);
+    ctx.globalAlpha = (this.moonHover ? 1.4 : 1) * e;
+    ctx.drawImage(this.moonWash, m.x - R, m.y - R, D, D);
     ctx.restore();
   }
 
@@ -563,7 +597,12 @@ class CityEngine {
     const alpha = (dimmed ? 0.55 : 1) * e;
     const st = {
       accent: b.accent, glow: b.glow, glowAmt, alpha, bright: hovered || active, b, PT, sc,
-      faceGlow: this.lowFx ? 0 : (hovered ? 18 : 9) * sc, edgeGlow: (hovered ? 20 : 9) * sc, lw: (hovered ? 2 : 1.4) * sc,
+      // shadowBlur is the per-frame canvas hot path. Only pay for it
+      // when a landmark is actually hovered or active — idle landmarks
+      // fall back to clean fills + the cheap neon edge stroke below.
+      faceGlow: (hovered || active) && !this.lowFx ? (hovered ? 22 : 14) * sc : 0,
+      edgeGlow: (hovered || active) ? (hovered ? 22 : 12) * sc : 0,
+      lw: (hovered ? 2 : 1.4) * sc,
     };
 
     let apex;
