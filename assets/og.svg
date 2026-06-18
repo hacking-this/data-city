@@ -141,11 +141,22 @@
       <circle cx="0" cy="-188" r="3" fill="#ff7a4d"/>
     </g>
 
-    <!-- BACK-RIGHT: Pipeline (twin towers, amber) -->
-    <g transform="translate(180 -120)" opacity="0.92">
-      <rect x="-46" y="-100" width="22" height="100" fill="url(#amber)"/>
-      <rect x="14" y="-90" width="22" height="90" fill="url(#amber)"/>
-      <rect x="-24" y="-50" width="38" height="6" fill="#b08820"/>
+    <!-- BACK-RIGHT: Pipeline (twin towers + sky bridge, amber) -->
+    <g transform="translate(190 -90)" opacity="0.92">
+      <!-- left tower iso-block -->
+      <g transform="translate(-30 0)">
+        <polygon points="-18,8 0,-4 18,8 0,20" fill="url(#amber)"/>
+        <polygon points="-18,8 0,-4 0,-100 -18,-92" fill="#7a5a14"/>
+        <polygon points="18,8 0,-4 0,-100 18,-92" fill="#b08820"/>
+      </g>
+      <!-- right tower iso-block -->
+      <g transform="translate(30 6)">
+        <polygon points="-18,8 0,-4 18,8 0,20" fill="url(#amber)"/>
+        <polygon points="-18,8 0,-4 0,-86 -18,-78" fill="#7a5a14"/>
+        <polygon points="18,8 0,-4 0,-86 18,-78" fill="#b08820"/>
+      </g>
+      <!-- sky bridge -->
+      <polygon points="-12,-48 12,-42 12,-36 -12,-42" fill="#ffd591"/>
     </g>
 
     <!-- BACK-LEFT: Skills (reactor, magenta) -->

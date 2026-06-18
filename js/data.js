@@ -24,17 +24,31 @@ const CITY = {
       shape: "hq",
       grid: { x: 0, y: 0, w: 2, d: 2, h: 322 },
       summary:
-        "Data Engineer with 2+ years building scalable pipelines and analytics platforms on Databricks, Apache Spark, and Snowflake — and, increasingly, the AI agents and platforms that run on top of them. I design data infrastructure people can trust.",
+        "Data Engineer at EY, building the lakehouse infrastructure that moves 25M+ records a day from legacy enterprise systems to Snowflake on Databricks. I treat data systems like products: governed, reliable, and boring in the best way — so the AI and analytics built on top of them can be ambitious.",
+      stats: [
+        { v: "2 yrs", k: "shipping data infra" },
+        { v: "25M+", k: "records / day in prod" },
+        { v: "5", k: "active certifications" },
+      ],
       current: {
         role: "Data Engineer",
         org: "EY Global Delivery Services",
         location: "Bengaluru, India",
         period: "Feb 2024 – Present",
+        focus: "Oracle DB2 → Snowflake migration · Spark performance · MCP-driven SDLC automation",
+      },
+      shipping: {
+        title: "What I'm building this quarter",
+        items: [
+          "Iceberg-based historical layer on Snowflake so we can reprocess years of data as a query, not a backfill job.",
+          "Internal MCP tooling that lets engineers update Jira from inside their editor — code changes write their own context.",
+          "Personal R&D: agentic platforms (NEXUS, WhatsApp Agent) — pressure-testing how far typed-tool LLM agents go on real, daily workloads.",
+        ],
       },
       mission:
-        "Turn messy, bespoke data plumbing into infrastructure people can trust — and platforms teams can build on without thinking about the wiring.",
+        "Turn messy, bespoke data plumbing into infrastructure people can trust — so engineers ship features instead of debating column types, and analysts ask better questions instead of doubting their dashboards.",
       future:
-        "Heading toward platform & agentic-AI engineering: self-serve data platforms, LLM-powered agents, and the systems that let intelligence run on reliable data.",
+        "I'm heading toward platform & agentic-AI engineering: self-serve data platforms that golden-path the right thing, and LLM agents that act safely on the data infrastructure underneath. The teams that win the next decade will run intelligence on infrastructure they can trust — I want to build both halves.",
     },
 
     {
@@ -67,11 +81,6 @@ const CITY = {
       ],
       projects: [
         {
-          title: "Oracle DB2 → Snowflake Migration",
-          desc: "Designed and built the Databricks ETL backbone migrating enterprise data from Oracle DB2 into Snowflake, processing 25M+ records daily with reliable, repeatable loads.",
-          tags: ["Databricks", "Apache Spark", "PySpark", "Snowflake"],
-        },
-        {
           title: "Distributed Spark Optimization",
           desc: "Tuned distributed Spark workloads with partitioning strategies and broadcast joins, cutting end-to-end pipeline runtime by 40% on large enterprise datasets.",
           tags: ["Spark", "Partitioning", "Broadcast Joins", "Performance"],
@@ -87,7 +96,47 @@ const CITY = {
         "Databricks Certified Data Engineer Associate",
         "Cut pipeline runtime 40% via Spark tuning",
       ],
-      diagram: "medallion",
+      caseStudy: {
+        title: "Oracle DB2 → Snowflake Migration",
+        kicker: "Case Study",
+        sub: "Moving an enterprise source-of-truth off a legacy warehouse without dropping a row.",
+        problem:
+          "Decades of business data lived in Oracle DB2 — the source-of-truth for analytics across multiple downstream teams. The org was moving to Snowflake for elastic compute and Iceberg-based schema evolution, but the migration couldn't pause reports, couldn't lose history, and couldn't tolerate silent drift between the two systems while both were live.",
+        constraints: [
+          { k: "Zero-downtime tolerance", v: "Downstream dashboards and finance reports ran continuously against DB2 — readers had to be flipped over without an outage window." },
+          { k: "Schema drift on the source", v: "DB2 schemas were occasionally hand-edited by upstream teams; the pipeline had to absorb new/renamed columns without breaking." },
+          { k: "Regulated data, traceable rows", v: "Every row had to be reconcilable end-to-end (DB2 → Bronze → Silver → Gold → Snowflake) for audit purposes." },
+          { k: "Cost discipline", v: "Running DB2 and Snowflake in parallel for weeks meant double-billing — the cutover window had to be measured in weeks, not quarters." },
+        ],
+        approach: [
+          { k: "Medallion on Databricks", v: "Bronze (raw DB2 extracts, immutable), Silver (cleansed + typed), Gold (business-modelled marts). Each layer is idempotent — re-running a day yields the same output." },
+          { k: "Partitioned bulk + daily delta", v: "Initial backfill in date-partitioned batches; ongoing loads as small daily deltas keyed by source change-timestamps. Both share the same PySpark transformation code." },
+          { k: "Iceberg on Snowflake", v: "Gold layer lands as Apache Iceberg tables on Snowflake — schema evolution lets new source columns flow through without rewrites, and time-travel makes reprocessing a query, not a job." },
+          { k: "Spark tuning where it mattered", v: "Skew-aware partitioning on high-cardinality join keys and broadcast joins for small dimension tables took the heaviest pipelines from hours to minutes — 40% off end-to-end runtime." },
+        ],
+        cutover: [
+          "Dual-load phase — every table writes to both DB2-mirror and Snowflake in parallel for two weeks. No reader switched yet; the goal was just to prove the new pipeline produces the same shape of truth.",
+          "Reader migration in batches — moved one reporting team at a time, smallest first. Each batch ran A/B for ~48 hours: the team ran their reports against both systems and signed off on parity before we flipped them permanently.",
+          "DB2 frozen, not dropped — the legacy source went read-only for 30 days as a fallback. Only when no reads landed on it for two weeks did we decommission ingestion.",
+        ],
+        reconciliation: [
+          { k: "Row-count parity", v: "Daily job compared row counts per table per partition between DB2 and Snowflake; any delta over 0.01% paged the on-call." },
+          { k: "Column-level hashes", v: "MD5 of concatenated values per primary key on a 1% sample, stored as a Snowflake table — anything mismatched stayed open until resolved." },
+          { k: "Freshness SLOs", v: "Gold tables had a 'last-loaded' timestamp surfaced in a Snowflake view; Airflow alerted if any table fell behind its SLA by 30 minutes." },
+        ],
+        whatBroke: [
+          "Silent timezone bug: DB2 stored some columns as `TIMESTAMP WITHOUT TIME ZONE`. Spark inferred them as session-local, which silently shifted dates by ±5.5 hours during the IST→UTC normalization. Caught in reconciliation — a 0.4% row mismatch on one fact table that traced back to date keys, not values.",
+          "Skewed key join melted a cluster: one customer ID had ~30% of all rows for a fact table. The first version did a regular shuffle join and hung at 99%. Fix was a salted broadcast join with the small dimension and key salting for the few hot IDs.",
+          "Source schema drift mid-load: upstream renamed a column in DB2 without notice. Iceberg absorbed it as a new column instead of failing — surfaced via a daily 'unexpected schema' check, fixed in a 4-line config change, no replay needed.",
+        ],
+        impact: [
+          { v: "25M+", k: "records / day in production" },
+          { v: "40%", k: "end-to-end runtime cut via Spark tuning" },
+          { v: "75%", k: "less reprocessing thanks to Iceberg time-travel" },
+          { v: "0", k: "rows lost across the cutover" },
+        ],
+      },
+      diagram: "db2-snowflake-topology",
     },
 
     {
@@ -465,6 +514,61 @@ const DIAGRAMS = {
         ["Platform", "data products"],
       ])}
     </svg>`,
+
+  // Real DB2→Snowflake migration topology — NOT a generic 4-box flow.
+  // Shows: medallion layers on Databricks, daily delta vs initial bulk,
+  // Iceberg target, reconciliation feedback loop, frozen-DB2 fallback.
+  "db2-snowflake-topology": (c) => {
+    const muted = "rgba(149,160,192,0.55)";
+    const box = (x, y, w, h, label, sub, fill, stroke) => `
+      <g>
+        <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="9"
+              fill="${fill || 'rgba(255,255,255,0.03)'}"
+              stroke="${stroke || c}" stroke-width="1.4" opacity="0.95"/>
+        <text x="${x + w / 2}" y="${y + 21}" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">${label}</text>
+        <text x="${x + w / 2}" y="${y + 36}" text-anchor="middle" fill="${c}" font-size="10" opacity="0.85">${sub}</text>
+      </g>`;
+    const arrow = (x1, y1, x2, y2, color, dashed) => `
+      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"
+            stroke="${color || c}" stroke-width="1.6" opacity="0.85"
+            ${dashed ? 'stroke-dasharray="4 4"' : ''}/>
+      <polygon points="${x2},${y2} ${x2 - 6 * Math.cos(Math.atan2(y2 - y1, x2 - x1) - 0.4)},${y2 - 6 * Math.sin(Math.atan2(y2 - y1, x2 - x1) - 0.4)} ${x2 - 6 * Math.cos(Math.atan2(y2 - y1, x2 - x1) + 0.4)},${y2 - 6 * Math.sin(Math.atan2(y2 - y1, x2 - x1) + 0.4)}"
+        fill="${color || c}" opacity="0.85"/>`;
+    return `
+      <svg viewBox="0 0 560 230" class="diagram" role="img" aria-label="DB2 to Snowflake migration topology">
+        <!-- source -->
+        ${box(8, 92, 76, 46, "Oracle DB2", "source-of-truth", 'rgba(255,255,255,0.02)', muted)}
+
+        <!-- ingest paths: initial bulk + daily delta -->
+        ${arrow(86, 102, 130, 102)}
+        ${arrow(86, 130, 130, 130, muted)}
+        <text x="108" y="98" text-anchor="middle" fill="${c}" font-size="9" opacity="0.85">delta</text>
+        <text x="108" y="142" text-anchor="middle" fill="${muted}" font-size="9">bulk (one-time)</text>
+
+        <!-- medallion -->
+        ${box(132, 80, 84, 46, "Bronze", "raw · immutable", null, c)}
+        ${box(132, 134, 84, 46, "Backfill", "partitioned", 'rgba(255,255,255,0.02)', muted)}
+        ${arrow(218, 103, 250, 103)}
+        ${arrow(218, 157, 250, 130, muted)}
+        ${box(252, 80, 80, 46, "Silver", "typed · cleansed", null, c)}
+        ${arrow(334, 103, 366, 103)}
+        ${box(368, 80, 80, 46, "Gold", "business marts", null, c)}
+
+        <!-- Iceberg on Snowflake -->
+        ${arrow(450, 103, 472, 103)}
+        ${box(474, 80, 78, 46, "Iceberg ❄", "Snowflake", null, c)}
+
+        <!-- reconciliation feedback (dashed) -->
+        ${box(252, 178, 196, 32, "Reconciliation", "row counts · MD5 sample · freshness", 'rgba(255,255,255,0.02)', muted)}
+        <line x1="350" y1="178" x2="350" y2="126" stroke="${muted}" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7"/>
+        <line x1="46" y1="138" x2="46" y2="200" stroke="${muted}" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7"/>
+        <line x1="46" y1="200" x2="252" y2="200" stroke="${muted}" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7"/>
+
+        <!-- legend -->
+        <text x="280" y="20" text-anchor="middle" fill="#95a0c0" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="2">DB2 → DATABRICKS MEDALLION → SNOWFLAKE</text>
+        <line x1="0" y1="58" x2="560" y2="58" stroke="${c}" stroke-width="0.5" opacity="0.25"/>
+      </svg>`;
+  },
 };
 
 /* Horizontal flow of glowing nodes connected by energy arrows. */

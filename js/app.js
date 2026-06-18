@@ -81,10 +81,24 @@
   });
 
   /* ---- enter the city ---- */
-  enterBtn.addEventListener("click", () => {
+  let dismissed = false;
+  function dismissHero() {
+    if (dismissed) return;
+    dismissed = true;
     hero.classList.add("dismiss");
     document.body.classList.add("entered");
     setTimeout(() => { hero.style.display = "none"; }, 1100);
+  }
+  enterBtn.addEventListener("click", dismissHero);
+  // Council Top-10 #6: soften the gate. First interaction with the canvas
+  // (drag / wheel / touch) auto-dismisses the hero — keeps the cinematic
+  // landing but stops blocking recruiters who scroll first, ask later.
+  ["pointerdown", "wheel", "touchstart"].forEach((ev) =>
+    canvas.addEventListener(ev, dismissHero, { passive: true, once: true })
+  );
+  // Likewise, opening any district (via the rail) auto-dismisses.
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" || e.key === "Enter") dismissHero();
   });
 
   /* ---- panel ---- */
@@ -99,6 +113,9 @@
       const hash = "#/" + id;
       if (location.hash !== hash) history.pushState({ id }, "", hash);
     }
+    // Per-route document title so tabs + browser history are scannable
+    // and shared links land with a useful title bar.
+    document.title = `${d.name} — Akshat Shukla · Data City`;
     // ensure we've entered the city
     if (!document.body.classList.contains("entered")) enterBtn.click();
 
@@ -129,6 +146,7 @@
     engine.setActive(null);
     engine.reset();
     if (!opts.fromRoute && location.hash) history.pushState({}, "", location.pathname);
+    document.title = "Akshat Shukla — Data Engineer · AI Builder";
   }
   document.getElementById("panel-close").addEventListener("click", closePanel);
   scrim.addEventListener("click", closePanel);
@@ -226,6 +244,8 @@
         <div class="diagram-wrap">${DIAGRAMS[d.diagram](d.accent)}</div>
       </section>` : "";
 
+    const caseStudy = d.caseStudy ? renderCaseStudy(d.caseStudy, d.accent) : "";
+
     const roadmap = d.roadmap ? `
       <section class="block">
         <h3 class="block-title">On The Roadmap</h3>
@@ -265,6 +285,7 @@
         <div class="stats">${stats}</div>
       </header>
       ${experience}
+      ${caseStudy}
       ${projectsBlock}
       ${roadmap}
       ${skills}
@@ -279,6 +300,79 @@
           <strong>${next.name} →</strong>
         </button>
       </footer>`;
+  }
+
+  /* ---- Case study: a real deep-dive on one piece of work ---- */
+  function renderCaseStudy(cs, accent) {
+    const constraints = cs.constraints.map((c) => `
+      <div class="cs-kv">
+        <div class="cs-k">${c.k}</div>
+        <p class="cs-v">${c.v}</p>
+      </div>`).join("");
+    const approach = cs.approach.map((c) => `
+      <div class="cs-kv">
+        <div class="cs-k">${c.k}</div>
+        <p class="cs-v">${c.v}</p>
+      </div>`).join("");
+    const reconciliation = cs.reconciliation.map((c) => `
+      <div class="cs-kv">
+        <div class="cs-k">${c.k}</div>
+        <p class="cs-v">${c.v}</p>
+      </div>`).join("");
+    const cutover = cs.cutover.map((p, i) => `
+      <li class="cs-step">
+        <span class="cs-step-n">${String(i + 1).padStart(2, "0")}</span>
+        <span class="cs-step-t">${p}</span>
+      </li>`).join("");
+    const broke = cs.whatBroke.map((p) => `<li class="cs-scar"><span class="cs-scar-mark">▲</span><span>${p}</span></li>`).join("");
+    const impact = cs.impact.map((s) => `
+      <div class="cs-impact">
+        <div class="cs-impact-v" style="--accent:${accent}">${s.v}</div>
+        <div class="cs-impact-k">${s.k}</div>
+      </div>`).join("");
+    return `
+      <section class="block case-study" style="--accent:${accent}">
+        <div class="cs-header">
+          <div class="cs-kicker">${cs.kicker}</div>
+          <h3 class="cs-title">${cs.title}</h3>
+          <p class="cs-sub">${cs.sub}</p>
+        </div>
+
+        <div class="cs-section">
+          <div class="cs-section-h">The problem</div>
+          <p class="cs-prose">${cs.problem}</p>
+        </div>
+
+        <div class="cs-section">
+          <div class="cs-section-h">Constraints</div>
+          <div class="cs-kv-grid">${constraints}</div>
+        </div>
+
+        <div class="cs-section">
+          <div class="cs-section-h">Approach</div>
+          <div class="cs-kv-grid">${approach}</div>
+        </div>
+
+        <div class="cs-section">
+          <div class="cs-section-h">Cutover</div>
+          <ol class="cs-steps">${cutover}</ol>
+        </div>
+
+        <div class="cs-section">
+          <div class="cs-section-h">Reconciliation</div>
+          <div class="cs-kv-grid">${reconciliation}</div>
+        </div>
+
+        <div class="cs-section">
+          <div class="cs-section-h cs-scar-h">What broke (the scars)</div>
+          <ul class="cs-scars">${broke}</ul>
+        </div>
+
+        <div class="cs-section">
+          <div class="cs-section-h">Impact</div>
+          <div class="cs-impacts">${impact}</div>
+        </div>
+      </section>`;
   }
 
   /* ---- Facility 00 — the meta panel: this site itself ---- */
@@ -337,12 +431,31 @@
     const links = [`<a href="mailto:${c.email}">Email</a>`]
       .concat(c.links.map((l) => `<a href="${l.href}" target="_blank" rel="noopener">${l.label}</a>`))
       .join("");
+    const stats = (d.stats || []).map((s) => `
+      <div class="stat">
+        <div class="stat-v">${s.v}</div>
+        <div class="stat-k">${s.k}</div>
+      </div>`).join("");
+    const shipping = d.shipping ? `
+      <section class="block">
+        <h3 class="block-title">${d.shipping.title}</h3>
+        <ul class="hq-shipping">
+          ${d.shipping.items.map((it) => `
+            <li><span class="hq-ship-mark"></span><span>${it}</span></li>`).join("")}
+        </ul>
+      </section>` : "";
+    const focusLine = d.current.focus ? `
+      <div class="hq-focus">
+        <span class="hq-focus-label">Focus</span>
+        <span class="hq-focus-text">${d.current.focus}</span>
+      </div>` : "";
     return `
       <header class="panel-head hq-head">
         <div class="panel-kicker">${d.kicker}</div>
         <h2 class="panel-title">${d.name}</h2>
         <div class="hq-role">${d.role}</div>
         <p class="panel-lede">${d.summary}</p>
+        ${stats ? `<div class="stats">${stats}</div>` : ""}
       </header>
       <section class="block">
         <h3 class="block-title">Currently</h3>
@@ -354,8 +467,10 @@
             </div>
             <div class="xp-period">${d.current.period}</div>
           </div>
+          ${focusLine}
         </article>
       </section>
+      ${shipping}
       <section class="block">
         <h3 class="block-title">Mission</h3>
         <blockquote class="hq-mission">${d.mission}</blockquote>
