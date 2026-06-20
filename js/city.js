@@ -23,10 +23,15 @@ class CityEngine {
     this.viewShiftX = 0;       // nudge city right to clear the left rail
     this.viewShiftTarget = 0;
     this.railCollapsed = false;
-    this.music = 0;            // 0..1 "live mode" intensity (ramped)
+    this.music = 0;            // 0..1 reactive intensity (ramped synth)
     this.musicTarget = 0;
-    this.beat = 0;             // per-beat spike (0..music)
-    this.pulse = 0;            // smooth shimmer (0..music)
+    this.beat = 0;             // per-beat spike (from real audio)
+    this.pulse = 0;            // smooth level (from real audio)
+    this.synth = 0;            // 0..1 synthwave-takeover ramp
+    this.synthTarget = 0;
+    this.audio = null;         // SynthwaveAudio instance (real frequency data)
+    this.lv = { bass: 0, mid: 0, treble: 0, level: 0, beat: 0 };
+    this.gridScroll = 0;       // Outrun grid scroll accumulator
     this.intro = 0;
     this.t = 0;
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -293,6 +298,12 @@ class CityEngine {
   // Turn the city's beat-reactive "live mode" on/off (ramped in _update).
   setMusicMode(on) { this.musicTarget = on ? 1 : 0; }
 
+  // Hook up the real audio engine (SynthwaveAudio) for frequency data.
+  attachAudio(a) { this.audio = a; }
+
+  // Full Outrun synthwave takeover, reacting to the real generated audio.
+  setSynthwave(on) { this.synthTarget = on ? 1 : 0; }
+
   focus(id) {
     const d = this.districts.find((x) => x.id === id);
     if (!d || !d._b) return;
@@ -354,24 +365,25 @@ class CityEngine {
     if (this.intro > 0.998) this.intro = 1;
     this.floatY = 0; // ambient float removed for smoothness
 
-    // ---- music "live mode": a synthetic beat that lights up the city ----
-    // We can't read a Spotify iframe's audio (cross-origin), so this is a
-    // ~120 BPM rhythm engine. Every effect is a scalar multiply on values
-    // we already draw — when music === 0 the factors are 1.0, so idle cost
-    // is unchanged.
-    this.music += (this.musicTarget - this.music) * 0.05;
-    if (Math.abs(this.musicTarget - this.music) < 0.002) this.music = this.musicTarget;
+    // ---- synthwave "night drive": the city reacts to REAL audio ----
+    // The synthwave engine (audio.js) feeds genuine frequency levels, so
+    // these are not a fake timer. When synth === 0 every factor is 1.0,
+    // so the idle render path is byte-for-byte the calm city.
+    this.synth += (this.synthTarget - this.synth) * 0.045;
+    if (Math.abs(this.synthTarget - this.synth) < 0.003) this.synth = this.synthTarget;
+    this.music = this.synth; // existing window/road/pad code reads this.music
+
+    if (this.audio) this.lv = this.audio.getLevels();
+    const lv = this.lv, s = this.synth;
     if (this.reduceMotion) { this.beat = 0; this.pulse = 0; }
     else {
-      const bpm = 122;
-      const phase = (this.t * bpm / 60) % 1;          // 0..1 once per beat
-      const env = Math.pow(1 - phase, 2.4);           // punchy attack, decay
-      this.beat = this.music * env;                   // 0..music, spikes on beat
-      this.pulse = this.music * (0.5 + 0.5 * Math.sin(this.t * 3.1)); // smooth shimmer
+      this.beat = s * Math.min(1, lv.beat * 0.85 + lv.bass * 0.5);
+      this.pulse = s * lv.level;
     }
+    this.gridScroll = (this.gridScroll + dt * (0.4 + lv.level * 1.6)) % 1;
 
     if (!this.reduceMotion) {
-      const flow = 1 + this.music * 0.9; // data flows faster with the music
+      const flow = 1 + s * (0.6 + lv.level * 1.8); // traffic races with the music
       this.cars.forEach((car) => { car.p += car.speed * car.dir * dt * flow; if (car.p > 1) car.p -= 1; if (car.p < 0) car.p += 1; });
     }
     if (!this.pointer.dragging && !this.moonDrag) this._hitTest();
@@ -429,15 +441,16 @@ class CityEngine {
 
     this._drawMoonlight(ctx, e);
 
-    // music "live mode": one cheap additive beat tint over the whole city
+    // subtle beat tint over the city — barely there, just enough to feel
     if (this.beat > 0.001) {
       ctx.save();
       ctx.globalCompositeOperation = "lighter";
-      ctx.fillStyle = `rgba(90,150,255,${this.beat * 0.035})`;
+      ctx.fillStyle = `rgba(160,120,200,${this.beat * 0.025})`;
       ctx.fillRect(0, 0, this.cssW, this.cssH);
       ctx.restore();
     }
   }
+
 
   _drawSky(ctx) {
     // Sky backdrop is handled by CSS .bg-grad / .bg-glow on <body>, so
@@ -458,6 +471,32 @@ class CityEngine {
     const hov = this.moonHover;
     const pulse = this.reduceMotion ? 1 : (0.92 + 0.08 * Math.sin(this.t * 1.1) + this.beat * 0.18);
     ctx.save();
+
+    // disco-moon: gentle rotating, color-cycling beams — tasteful, not strobing
+    if (this.synth > 0.01 && !this.reduceMotion) {
+      const beams = 6;
+      const spin = this.t * (0.35 + this.lv.level * 0.8);   // calmer rotation
+      const reach = Math.max(this.cssW, this.cssH) * 0.55;  // shorter throw
+      const wob = 0.05;                                     // thinner beams
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = this.synth * (0.14 + this.lv.level * 0.22); // ~half the loudness
+      for (let i = 0; i < beams; i++) {
+        const a = spin + i * (Math.PI * 2 / beams);
+        const hue = (i / beams * 360 + this.t * 28) % 360;  // slower color cycle
+        const ex = m.x + Math.cos(a) * reach, ey = m.y + Math.sin(a) * reach;
+        const g = ctx.createLinearGradient(m.x, m.y, ex, ey);
+        g.addColorStop(0, `hsla(${hue},85%,68%,0.4)`);
+        g.addColorStop(1, `hsla(${hue},85%,68%,0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y);
+        ctx.lineTo(m.x + Math.cos(a - wob) * reach, m.y + Math.sin(a - wob) * reach);
+        ctx.lineTo(m.x + Math.cos(a + wob) * reach, m.y + Math.sin(a + wob) * reach);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.restore();
+    }
 
     // outer halo
     const haloR = m.r * (hov ? 5.2 : 4.2) * pulse;
@@ -564,7 +603,9 @@ class CityEngine {
       ctx.lineWidth = 1.3 * sc; line(ctx, a, b);
     });
 
-    // traffic streaks: two cheap strokes (soft halo + bright core), no shadowBlur
+    // traffic streaks: two cheap strokes (soft halo + bright core), no shadowBlur.
+    // In music mode they brighten subtly on the beat — no recolor, no long lines.
+    const brightMul = 1 + this.beat * 0.5;
     this.cars.forEach((car) => {
       const av = car.av;
       const lo = av.lo, hi = av.hi, at = av.at;
@@ -574,9 +615,9 @@ class CityEngine {
       if (av.axis === "v") { s = this.project(at, coord(p0)); t = this.project(at, coord(p1)); }
       else { s = this.project(coord(p0), at); t = this.project(coord(p1), at); }
       const col = car.warm ? "255,120,90" : "150,220,255";
-      ctx.strokeStyle = `rgba(${col},${0.22 * e})`;
+      ctx.strokeStyle = `rgba(${col},${Math.min(0.4, 0.22 * e * brightMul)})`;
       ctx.lineWidth = 5.5 * sc; line(ctx, s, t);
-      ctx.strokeStyle = `rgba(${col},${0.95 * e})`;
+      ctx.strokeStyle = `rgba(${col},${Math.min(1, 0.95 * e * brightMul)})`;
       ctx.lineWidth = 2.2 * sc; line(ctx, s, t);
     });
     ctx.restore();
@@ -924,7 +965,9 @@ class CityEngine {
         const ctr = lerp(lerp(tA, tB, u), lerp(bA, bB, u), v);
         const lit = ((c * 7 + r * 3 + b.id.length) % 5) !== 0;
         const litA = bright ? 0.95 : 0.62;
-        ctx.globalAlpha = lit ? Math.min(1, litA * (1 + this.beat * 0.7)) : 0.12;
+        // subtle but unmistakable: lit windows breathe ~25-30% brighter on
+        // the beat; dark windows stay off (no full-on takeover)
+        ctx.globalAlpha = lit ? Math.min(1, litA * (1 + this.beat * 0.3)) : 0.12;
         ctx.fillStyle = lit ? b.glow : "#0a0e1c";
         const w = Math.max(1.3, Math.abs((tB.x - tA.x) / cols) * 0.5);
         const h = Math.max(1.3, Math.abs((bA.y - tA.y) / rows) * 0.45);
@@ -947,9 +990,9 @@ class CityEngine {
         const ctr = lerp(lerp(tA, tB, u), lerp(bA, bB, u), v);
         const w = Math.max(1, Math.abs((tB.x - tA.x) / cols) * 0.46);
         const h = Math.max(1, Math.abs((bA.y - tA.y) / rows) * 0.42);
-        // slight per-building phase so the skyline shimmers in a wave, not in lockstep
+        // slight per-building phase so the skyline shimmers in a wave on the beat
         const localBeat = this.beat * (0.7 + 0.3 * Math.sin(b.litSeed + this.t * 4));
-        ctx.globalAlpha = Math.min(1, alpha * 0.95 * (1 + localBeat * 0.9));
+        ctx.globalAlpha = Math.min(1, alpha * 0.95 * (1 + localBeat * 0.35));
         ctx.fillStyle = b.glow;
         ctx.fillRect(ctr.x - w / 2, ctr.y - h / 2, w, h);
       }

@@ -579,7 +579,7 @@
     const pill = document.getElementById("radio-toggle");
     const panel = document.getElementById("radio-panel");
     const closeBtn = document.getElementById("radio-close");
-    const liveBtn = document.getElementById("radio-live");
+    const ndBtn = document.getElementById("night-drive");
     const picksEl = document.getElementById("radio-picks");
     const playerEl = document.getElementById("radio-player");
     const freqEl = document.getElementById("radio-freq");
@@ -601,15 +601,9 @@
     }
 
     let opened = false;
-    let started = false; // user-gesture gate for autoplay
-    let live = false;    // city beat-reactive lights
-
-    function setLive(on) {
-      live = on;
-      root.classList.toggle("is-live", on);
-      liveBtn.setAttribute("aria-pressed", String(on));
-      if (window.__cityEngine) window.__cityEngine.setMusicMode(on);
-    }
+    let spotifyMounted = false;
+    let driving = false;     // NIGHT DRIVE: generated synthwave + reactive city
+    let audio = null;        // SynthwaveAudio instance (created on first drive)
 
     function open() {
       if (opened) return;
@@ -617,10 +611,9 @@
       root.classList.add("is-open");
       panel.setAttribute("aria-hidden", "false");
       pill.setAttribute("aria-expanded", "true");
-      // First open = the user gesture. Mount the Spotify iframe NOW so
-      // playback can be auto-initiated (autoplay; encrypted-media allowed).
-      if (!started) {
-        started = true;
+      // Mount the Spotify player lazily on first open.
+      if (!spotifyMounted) {
+        spotifyMounted = true;
         playerEl.innerHTML = `
           <iframe
             class="radio-spotify"
@@ -629,7 +622,6 @@
             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
             title="${r.brand} player"></iframe>
           <p class="radio-hint">▸ Tap play in the embed. Spotify Premium gets full songs; free accounts get 30-sec previews.</p>`;
-        setLive(true); // city goes live; persists even if the panel is closed
       }
     }
     function close() {
@@ -637,14 +629,34 @@
       root.classList.remove("is-open");
       panel.setAttribute("aria-hidden", "true");
       pill.setAttribute("aria-expanded", "false");
-      // NOTE: closing the panel keeps live mode on, so you can watch the
-      // city pulse while the music plays. Toggle LIVE to stop the lights.
+      // NIGHT DRIVE keeps running when the panel is closed, so you can
+      // watch the city dance. The pill stays lit while it's on.
     }
     function toggle() { opened ? close() : open(); }
 
+    // NIGHT DRIVE — start/stop the generated synthwave + the reactive city.
+    function setDrive(on) {
+      driving = on;
+      root.classList.toggle("is-driving", on);
+      ndBtn.setAttribute("aria-pressed", String(on));
+      ndBtn.querySelector(".nd-title").textContent = on ? "■ STOP" : "▶ NIGHT DRIVE";
+      const eng = window.__cityEngine;
+      if (on) {
+        if (typeof SynthwaveAudio !== "undefined" && !audio) {
+          audio = new SynthwaveAudio();
+          if (eng) eng.attachAudio(audio);
+        }
+        if (audio) audio.start();
+        if (eng) eng.setSynthwave(true);
+      } else {
+        if (audio) audio.stop();
+        if (eng) eng.setSynthwave(false);
+      }
+    }
+
     pill.addEventListener("click", toggle);
     closeBtn.addEventListener("click", close);
-    liveBtn.addEventListener("click", (e) => { e.stopPropagation(); setLive(!live); });
+    ndBtn.addEventListener("click", (e) => { e.stopPropagation(); setDrive(!driving); });
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && opened) close();
     });
