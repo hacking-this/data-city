@@ -23,6 +23,10 @@ class CityEngine {
     this.viewShiftX = 0;       // nudge city right to clear the left rail
     this.viewShiftTarget = 0;
     this.railCollapsed = false;
+    this.music = 0;            // 0..1 "live mode" intensity (ramped)
+    this.musicTarget = 0;
+    this.beat = 0;             // per-beat spike (0..music)
+    this.pulse = 0;            // smooth shimmer (0..music)
     this.intro = 0;
     this.t = 0;
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -286,6 +290,9 @@ class CityEngine {
     this.viewShiftTarget = v ? (this.cssW >= 900 ? 24 : 0) : (this.viewShiftBase || 0);
   }
 
+  // Turn the city's beat-reactive "live mode" on/off (ramped in _update).
+  setMusicMode(on) { this.musicTarget = on ? 1 : 0; }
+
   focus(id) {
     const d = this.districts.find((x) => x.id === id);
     if (!d || !d._b) return;
@@ -347,8 +354,25 @@ class CityEngine {
     if (this.intro > 0.998) this.intro = 1;
     this.floatY = 0; // ambient float removed for smoothness
 
+    // ---- music "live mode": a synthetic beat that lights up the city ----
+    // We can't read a Spotify iframe's audio (cross-origin), so this is a
+    // ~120 BPM rhythm engine. Every effect is a scalar multiply on values
+    // we already draw — when music === 0 the factors are 1.0, so idle cost
+    // is unchanged.
+    this.music += (this.musicTarget - this.music) * 0.05;
+    if (Math.abs(this.musicTarget - this.music) < 0.002) this.music = this.musicTarget;
+    if (this.reduceMotion) { this.beat = 0; this.pulse = 0; }
+    else {
+      const bpm = 122;
+      const phase = (this.t * bpm / 60) % 1;          // 0..1 once per beat
+      const env = Math.pow(1 - phase, 2.4);           // punchy attack, decay
+      this.beat = this.music * env;                   // 0..music, spikes on beat
+      this.pulse = this.music * (0.5 + 0.5 * Math.sin(this.t * 3.1)); // smooth shimmer
+    }
+
     if (!this.reduceMotion) {
-      this.cars.forEach((car) => { car.p += car.speed * car.dir * dt; if (car.p > 1) car.p -= 1; if (car.p < 0) car.p += 1; });
+      const flow = 1 + this.music * 0.9; // data flows faster with the music
+      this.cars.forEach((car) => { car.p += car.speed * car.dir * dt * flow; if (car.p > 1) car.p -= 1; if (car.p < 0) car.p += 1; });
     }
     if (!this.pointer.dragging && !this.moonDrag) this._hitTest();
     this.canvas.style.cursor = this.moonDrag ? "grabbing"
@@ -404,6 +428,15 @@ class CityEngine {
     ordered.forEach((b) => this._drawBuilding(ctx, b, e));
 
     this._drawMoonlight(ctx, e);
+
+    // music "live mode": one cheap additive beat tint over the whole city
+    if (this.beat > 0.001) {
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.fillStyle = `rgba(90,150,255,${this.beat * 0.035})`;
+      ctx.fillRect(0, 0, this.cssW, this.cssH);
+      ctx.restore();
+    }
   }
 
   _drawSky(ctx) {
@@ -423,7 +456,7 @@ class CityEngine {
   _drawMoon(ctx, e) {
     const m = this._moonPos();
     const hov = this.moonHover;
-    const pulse = this.reduceMotion ? 1 : (0.92 + 0.08 * Math.sin(this.t * 1.1));
+    const pulse = this.reduceMotion ? 1 : (0.92 + 0.08 * Math.sin(this.t * 1.1) + this.beat * 0.18);
     ctx.save();
 
     // outer halo
@@ -491,7 +524,7 @@ class CityEngine {
     const D = R * 2;
     ctx.save();
     ctx.globalCompositeOperation = "lighter";
-    ctx.globalAlpha = (this.moonHover ? 1.4 : 1) * e;
+    ctx.globalAlpha = (this.moonHover ? 1.4 : 1) * e * (1 + this.music * 0.7 + this.beat * 0.5);
     ctx.drawImage(this.moonWash, m.x - R, m.y - R, D, D);
     ctx.restore();
   }
@@ -504,8 +537,9 @@ class CityEngine {
       const rad = (d._b.grid.w + d._b.grid.d) * this.TILE * 0.6 * this.cam.scale;
       const grd = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, rad);
       const lit = !this.activeId || this.activeId === d.id;
-      grd.addColorStop(0, hexA(d.accent, (lit ? 0.32 : 0.12) * e));
-      grd.addColorStop(0.5, hexA(d.accent, (lit ? 0.09 : 0.03) * e));
+      const m = 1 + this.pulse * 0.5 + this.beat * 0.4; // breathe to the music
+      grd.addColorStop(0, hexA(d.accent, (lit ? 0.32 : 0.12) * e * m));
+      grd.addColorStop(0.5, hexA(d.accent, (lit ? 0.09 : 0.03) * e * m));
       grd.addColorStop(1, hexA(d.accent, 0));
       ctx.fillStyle = grd;
       ctx.save(); ctx.translate(c.x, c.y); ctx.scale(1, 0.5);
@@ -519,13 +553,14 @@ class CityEngine {
     ctx.save();
     ctx.lineCap = "round";
     const sc = this.cam.scale;
+    const gridM = 1 + this.beat * 0.6; // avenues pulse on the beat
     this.avenues.forEach((av) => {
       let a, b;
       if (av.axis === "v") { a = this.project(av.at, av.lo); b = this.project(av.at, av.hi); }
       else { a = this.project(av.lo, av.at); b = this.project(av.hi, av.at); }
-      ctx.strokeStyle = `rgba(80,130,210,${0.16 * e})`;
+      ctx.strokeStyle = `rgba(80,130,210,${Math.min(0.5, 0.16 * e * gridM)})`;
       ctx.lineWidth = 7 * sc; line(ctx, a, b);
-      ctx.strokeStyle = `rgba(150,195,255,${0.34 * e})`;
+      ctx.strokeStyle = `rgba(150,195,255,${Math.min(0.7, 0.34 * e * gridM)})`;
       ctx.lineWidth = 1.3 * sc; line(ctx, a, b);
     });
 
@@ -888,7 +923,8 @@ class CityEngine {
         const u = (c + 0.5) / cols, v = (r + 0.5) / rows;
         const ctr = lerp(lerp(tA, tB, u), lerp(bA, bB, u), v);
         const lit = ((c * 7 + r * 3 + b.id.length) % 5) !== 0;
-        ctx.globalAlpha = (lit ? (bright ? 0.95 : 0.62) : 0.12);
+        const litA = bright ? 0.95 : 0.62;
+        ctx.globalAlpha = lit ? Math.min(1, litA * (1 + this.beat * 0.7)) : 0.12;
         ctx.fillStyle = lit ? b.glow : "#0a0e1c";
         const w = Math.max(1.3, Math.abs((tB.x - tA.x) / cols) * 0.5);
         const h = Math.max(1.3, Math.abs((bA.y - tA.y) / rows) * 0.45);
@@ -911,7 +947,9 @@ class CityEngine {
         const ctr = lerp(lerp(tA, tB, u), lerp(bA, bB, u), v);
         const w = Math.max(1, Math.abs((tB.x - tA.x) / cols) * 0.46);
         const h = Math.max(1, Math.abs((bA.y - tA.y) / rows) * 0.42);
-        ctx.globalAlpha = alpha * 0.95;
+        // slight per-building phase so the skyline shimmers in a wave, not in lockstep
+        const localBeat = this.beat * (0.7 + 0.3 * Math.sin(b.litSeed + this.t * 4));
+        ctx.globalAlpha = Math.min(1, alpha * 0.95 * (1 + localBeat * 0.9));
         ctx.fillStyle = b.glow;
         ctx.fillRect(ctr.x - w / 2, ctr.y - h / 2, w, h);
       }

@@ -23,6 +23,7 @@
     onSelect: openDistrict,
   });
   engine.start();
+  window.__cityEngine = engine; // referenced by the radio widget for live mode
 
   /* ---- district rail ---- */
   CITY.districts.forEach((d) => {
@@ -569,4 +570,83 @@
       .map((l) => `<a href="${l.href}" target="_blank" rel="noopener">${l.label}</a>`).join("") +
       `<a href="mailto:${CITY.contact.email}">Email</a>`;
   }
+
+  /* ---- NIGHT.RADIO — corner ambient music widget ---- */
+  (function radio() {
+    if (!CITY.radio) return;
+    const r = CITY.radio;
+    const root = document.getElementById("radio");
+    const pill = document.getElementById("radio-toggle");
+    const panel = document.getElementById("radio-panel");
+    const closeBtn = document.getElementById("radio-close");
+    const liveBtn = document.getElementById("radio-live");
+    const picksEl = document.getElementById("radio-picks");
+    const playerEl = document.getElementById("radio-player");
+    const freqEl = document.getElementById("radio-freq");
+    const subEl = document.getElementById("radio-sub");
+
+    freqEl.textContent = r.freq;
+    subEl.textContent = r.tagline;
+    if (r.picks && r.picks.length) {
+      picksEl.innerHTML = r.picks.map((p, i) => `
+        <li class="radio-pick">
+          <span class="radio-pick-n">${String(i + 1).padStart(2, "0")}</span>
+          <div>
+            <div class="radio-pick-name">${p.n}</div>
+            <div class="radio-pick-note">${p.note}</div>
+          </div>
+        </li>`).join("");
+    } else {
+      picksEl.style.display = "none"; // embed is the source of truth
+    }
+
+    let opened = false;
+    let started = false; // user-gesture gate for autoplay
+    let live = false;    // city beat-reactive lights
+
+    function setLive(on) {
+      live = on;
+      root.classList.toggle("is-live", on);
+      liveBtn.setAttribute("aria-pressed", String(on));
+      if (window.__cityEngine) window.__cityEngine.setMusicMode(on);
+    }
+
+    function open() {
+      if (opened) return;
+      opened = true;
+      root.classList.add("is-open");
+      panel.setAttribute("aria-hidden", "false");
+      pill.setAttribute("aria-expanded", "true");
+      // First open = the user gesture. Mount the Spotify iframe NOW so
+      // playback can be auto-initiated (autoplay; encrypted-media allowed).
+      if (!started) {
+        started = true;
+        playerEl.innerHTML = `
+          <iframe
+            class="radio-spotify"
+            src="${r.playlistEmbedUrl}"
+            height="152" frameborder="0" loading="lazy" allowfullscreen
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+            title="${r.brand} player"></iframe>
+          <p class="radio-hint">▸ Tap play in the embed. Spotify Premium gets full songs; free accounts get 30-sec previews.</p>`;
+        setLive(true); // city goes live; persists even if the panel is closed
+      }
+    }
+    function close() {
+      opened = false;
+      root.classList.remove("is-open");
+      panel.setAttribute("aria-hidden", "true");
+      pill.setAttribute("aria-expanded", "false");
+      // NOTE: closing the panel keeps live mode on, so you can watch the
+      // city pulse while the music plays. Toggle LIVE to stop the lights.
+    }
+    function toggle() { opened ? close() : open(); }
+
+    pill.addEventListener("click", toggle);
+    closeBtn.addEventListener("click", close);
+    liveBtn.addEventListener("click", (e) => { e.stopPropagation(); setLive(!live); });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && opened) close();
+    });
+  })();
 })();

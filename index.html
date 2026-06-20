@@ -105,6 +105,43 @@
     <nav id="contact-links" class="contact-links"></nav>
   </footer>
 
+  <!-- NIGHT.RADIO — corner ambient music widget -->
+  <aside id="radio" class="radio" aria-label="Ambient music">
+    <button id="radio-toggle" class="radio-pill" aria-expanded="false" aria-controls="radio-panel">
+      <span class="radio-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span class="radio-pill-label">
+        <span class="radio-brand">NIGHT.RADIO</span>
+        <span class="radio-freq" id="radio-freq"></span>
+      </span>
+    </button>
+    <div id="radio-panel" class="radio-panel" role="region" aria-hidden="true">
+      <div class="radio-head">
+        <div>
+          <div class="radio-brand-big">NIGHT.RADIO</div>
+          <div class="radio-sub" id="radio-sub"></div>
+        </div>
+        <div class="radio-head-btns">
+          <button id="radio-live" class="radio-live" aria-pressed="true" title="Toggle the city's beat-reactive lights">
+            <span class="radio-live-dot"></span>LIVE
+          </button>
+          <button id="radio-close" class="radio-close" aria-label="Hide radio">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <ul id="radio-picks" class="radio-picks"></ul>
+      <div id="radio-player" class="radio-player">
+        <p class="radio-hint">▸ Tap play below to start the broadcast.</p>
+      </div>
+      <p class="radio-foot">
+        <span class="radio-foot-dot"></span>
+        The Data City soundtrack · keep it low.
+      </p>
+    </div>
+  </aside>
+
   <script src="js/data.js"></script>
   <script src="js/city.js"></script>
   <script src="js/app.js"></script>

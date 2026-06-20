@@ -364,6 +364,23 @@ const CITY = {
     },
   ],
 
+  /* NIGHT.RADIO — ambient cyberpunk vibes in a corner widget.
+     Five Weeknd picks for the neon-city / late-night mood. Browsers
+     block audio autoplay, so the first click on the radio pill starts
+     the stream; after that it rides at min volume in the background.
+     To swap the playlist, replace `playlistEmbedUrl` below with any
+     Spotify playlist's embed URL. */
+  radio: {
+    brand: "NIGHT.RADIO",
+    freq: "98.7 FM · NEON CITY",
+    tagline: "The Data City soundtrack — neon nights, on loop.",
+    // The curated Data City playlist. The embed below is the source of
+    // truth for the tracklist (album art + full list), so no static song
+    // list is needed. Swap this URL to change the soundtrack.
+    playlistEmbedUrl: "https://open.spotify.com/embed/playlist/40uX75V6RNQOPaWJ4wJzcr?utm_source=generator&theme=0",
+    picks: [],
+  },
+
   /* Facility 00 — the site itself, the engine credit. Not a building in
      the city; it lives at the top of the rail as the meta-project that
      proves the engineering claims the rest of the site makes. */
