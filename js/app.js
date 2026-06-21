@@ -153,6 +153,66 @@
   scrim.addEventListener("click", closePanel);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePanel(); });
 
+  /* ---- panel resize: drag the left edge to widen / narrow ---- */
+  (function panelResize() {
+    const handle = document.getElementById("panel-resize");
+    if (!handle) return;
+    const STORAGE_KEY = "data-city.panel-w";
+    const DEFAULT = "min(560px, 94vw)";
+    function clampPx(px) {
+      const max = Math.round(window.innerWidth * 0.94);
+      // keep at least 320px so the content stays readable, never wider than 94vw
+      return Math.max(320, Math.min(max, px));
+    }
+    function applyWidth(value) {
+      // value can be either a CSS string (e.g. "min(560px, 94vw)") or a px number
+      document.documentElement.style.setProperty("--panel-w",
+        typeof value === "number" ? `${clampPx(value)}px` : value);
+    }
+    // restore previous width, if any
+    const saved = parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
+    if (saved > 0) applyWidth(saved);
+    else applyWidth(DEFAULT);
+
+    let dragging = false;
+    let startX = 0, startW = 0, lastW = 0;
+
+    handle.addEventListener("pointerdown", (e) => {
+      if (window.innerWidth < 720) return; // mobile panel is full-bleed
+      dragging = true;
+      handle.setPointerCapture(e.pointerId);
+      startX = e.clientX;
+      startW = panel.getBoundingClientRect().width;
+      document.body.classList.add("panel-resizing");
+      e.preventDefault();
+    });
+    handle.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const dx = startX - e.clientX;          // dragging LEFT widens the panel
+      lastW = clampPx(startW + dx);
+      applyWidth(lastW);
+    });
+    function endDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      try { handle.releasePointerCapture(e.pointerId); } catch (_) {}
+      document.body.classList.remove("panel-resizing");
+      if (lastW > 0) localStorage.setItem(STORAGE_KEY, String(lastW));
+    }
+    handle.addEventListener("pointerup", endDrag);
+    handle.addEventListener("pointercancel", endDrag);
+    // double-click resets to default
+    handle.addEventListener("dblclick", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      applyWidth(DEFAULT); lastW = 0;
+    });
+    // re-clamp if the viewport shrinks below our saved width
+    window.addEventListener("resize", () => {
+      if (lastW > 0) applyWidth(lastW);
+      else if (saved > 0) applyWidth(saved);
+    });
+  })();
+
   /* ---- panel template ---- */
   function renderDistrict(d) {
     const idx = CITY.districts.findIndex((x) => x.id === d.id);

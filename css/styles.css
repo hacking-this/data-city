@@ -236,7 +236,7 @@ body.panel-open .ground-hint { opacity: 0; }
 /* ---- detail panel ---------------------------------------------------- */
 .panel {
   position: fixed; top: 0; right: 0; bottom: 0; z-index: 46;
-  width: min(560px, 94vw);
+  width: var(--panel-w, min(560px, 94vw));
   background: linear-gradient(180deg, rgba(13,16,33,0.96), rgba(8,10,22,0.98));
   backdrop-filter: blur(26px) saturate(150%);
   border-left: 1px solid var(--line);
@@ -245,12 +245,35 @@ body.panel-open .ground-hint { opacity: 0; }
   transition: transform 0.66s var(--ease);
   display: flex; flex-direction: column;
 }
+/* skip the slide transition while the user is actively dragging the edge */
+body.panel-resizing .panel { transition: none; }
 .panel::before {
   content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
   background: linear-gradient(90deg, transparent, var(--accent), transparent);
   box-shadow: 0 0 24px var(--glow);
 }
 .panel.open { transform: none; }
+
+/* resize handle on the left edge of the panel */
+.panel-resize {
+  position: absolute; top: 0; left: -4px; bottom: 0; width: 10px;
+  cursor: col-resize; z-index: 2;
+  background: transparent;
+  touch-action: none; /* let our pointer drag claim it on touch */
+  transition: background 0.2s var(--ease);
+}
+/* a faint guideline that fades in on hover/drag */
+.panel-resize::after {
+  content: ""; position: absolute; top: 28%; bottom: 28%; left: 50%;
+  width: 2px; transform: translateX(-50%); border-radius: 2px;
+  background: var(--accent);
+  opacity: 0; transition: opacity 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+.panel-resize:hover::after,
+body.panel-resizing .panel-resize::after {
+  opacity: 0.7; box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+body.panel-resizing { cursor: col-resize; user-select: none; }
 .panel-close {
   position: absolute; top: 20px; right: 20px; z-index: 2;
   width: 40px; height: 40px; border-radius: 50%;
@@ -896,16 +919,21 @@ body.panel-open .radio { opacity: 0; pointer-events: none; }
   .rail-soon { display: none; }
   .rail-item { padding: 11px; }
   .rail-toggle { left: 66px; }
-  .radio { right: 14px; bottom: 64px; }
-  .radio-pill { padding: 8px 12px 8px 10px; }
-  .radio-pill-label .radio-freq { display: none; }
-  .radio-panel { width: 280px; }
+  /* The radio pill + panel is desktop-only — too cramped on phones. */
+  .radio { display: none; }
   .topbar { padding: 16px 18px; }
-  .contact { right: 14px; bottom: 14px; }
+  .contact { left: 14px; right: 14px; bottom: 14px; justify-content: center; }
   .contact-tag { display: none; }
+  .contact-links { flex-wrap: wrap; justify-content: center; }
   .panel-body { padding: 52px 24px 32px; }
   .skill-grid { grid-template-columns: 1fr; }
-  .ground-hint { font-size: 10px; bottom: 70px; }
+  /* On mobile the city's instructional hint always collides with the radio
+     pill + contact strip in the cramped bottom corner. Hide it — touch
+     users don't read corner hints anyway, they just tap things. */
+  .ground-hint { display: none; }
+  /* Resize handle is mouse-only; hide it on mobile so it doesn't sit in
+     the touch surface for the close button. */
+  .panel-resize { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
