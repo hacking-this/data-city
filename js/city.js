@@ -204,8 +204,29 @@ class CityEngine {
     const c = this.canvas;
     window.addEventListener("resize", () => this._resize());
 
+    // Track all active pointers so we can support pinch-to-zoom (two
+    // simultaneous touches). Single pointer = pan/drag/click as before.
+    this.activePointers = new Map(); // id -> { x, y }
+    this.pinch = null;               // { startDist, startScale } when active
+
     c.addEventListener("pointermove", (e) => {
       const r = c.getBoundingClientRect();
+      // keep the live map fresh for pinch math
+      if (this.activePointers.has(e.pointerId)) {
+        this.activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      }
+      // PINCH wins over pan/moon while two fingers are down
+      if (this.pinch && this.activePointers.size >= 2) {
+        const pts = [...this.activePointers.values()];
+        const dx = pts[0].x - pts[1].x, dy = pts[0].y - pts[1].y;
+        const dist = Math.hypot(dx, dy);
+        if (dist > 0) {
+          const ratio = dist / this.pinch.startDist;
+          this.cam.targetScale = clamp(this.pinch.startScale * ratio,
+            this.fitScale * 0.7, this.fitScale * 2.4);
+        }
+        return;
+      }
       this.pointer.x = e.clientX - r.left;
       this.pointer.y = e.clientY - r.top;
       // dragging the moon takes priority over panning the city
@@ -226,6 +247,18 @@ class CityEngine {
       }
     });
     c.addEventListener("pointerdown", (e) => {
+      this.activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      // Two fingers down = pinch. Cancel any in-flight pan/moon/click so
+      // the second finger doesn't get treated as a tap.
+      if (this.activePointers.size >= 2) {
+        const pts = [...this.activePointers.values()];
+        const dx = pts[0].x - pts[1].x, dy = pts[0].y - pts[1].y;
+        this.pinch = { startDist: Math.hypot(dx, dy) || 1, startScale: this.cam.scale };
+        this.pointer.dragging = true; // disarms the tap-on-up
+        this.moonDrag = null;
+        this.dragStart = null;
+        return;
+      }
       // update pointer + hit-test at the press point so TOUCH taps (which fire
       // no pointermove first) know what's under the finger.
       const r = c.getBoundingClientRect();
@@ -241,6 +274,13 @@ class CityEngine {
       c.setPointerCapture(e.pointerId);
     });
     c.addEventListener("pointerup", (e) => {
+      this.activePointers.delete(e.pointerId);
+      // End pinch as soon as fewer than 2 fingers remain.
+      if (this.pinch && this.activePointers.size < 2) {
+        this.pinch = null;
+        this.pointer.down = false; this.dragStart = null;
+        return;
+      }
       this.pointer.down = false;
       if (this.moonDrag) {
         if (!this.moonDrag.moved) this.onSelect("spotify"); // a tap (not a drag) opens it
@@ -258,6 +298,12 @@ class CityEngine {
     c.addEventListener("pointerleave", () => {
       this.pointer.x = -9999; this.pointer.y = -9999;
       this.pointer.down = false; this.dragStart = null; this.moonDrag = null;
+    });
+    // If the browser or OS yanks a touch out from under us (e.g. a system
+    // gesture), drop it from the pointer map so pinch doesn't get stuck.
+    c.addEventListener("pointercancel", (e) => {
+      this.activePointers.delete(e.pointerId);
+      if (this.activePointers.size < 2) this.pinch = null;
     });
     c.addEventListener("wheel", (e) => {
       e.preventDefault();
