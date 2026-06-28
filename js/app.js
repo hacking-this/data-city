@@ -12,10 +12,42 @@
   const hero = document.getElementById("hero");
   const enterBtn = document.getElementById("enter");
 
-  /* ---- hero content ---- */
-  document.getElementById("hero-name").textContent = CITY.hero.name;
-  document.getElementById("hero-role").textContent = CITY.hero.role;
-  document.getElementById("hero-tag").textContent = CITY.hero.tagline;
+  /* ---- hero content (the recruiter screening card) ---- */
+  (function fillHero() {
+    const h = CITY.hero, c = CITY.contact;
+    document.getElementById("hero-name").textContent = h.name;
+    document.getElementById("hero-role").textContent = h.role;
+    document.getElementById("hero-status-text").textContent = h.status;
+    document.getElementById("hero-location").textContent =
+      h.remote ? `${h.location} · ${h.remote}` : h.location;
+
+    document.getElementById("hero-current").innerHTML = `
+      <span class="hero-current-role">${h.current.role}</span> @
+      <span class="hero-current-org">${h.current.org}</span>
+      <span class="hero-current-sep">·</span>
+      <span class="hero-current-period">${h.current.period}</span>`;
+
+    document.getElementById("hero-stats").innerHTML = h.stats.map((s) => `
+      <div class="hero-stat">
+        <div class="hero-stat-v">${s.v}</div>
+        <div class="hero-stat-k">${s.k}</div>
+      </div>`).join("");
+
+    document.getElementById("hero-stack").innerHTML = h.stack
+      .map((t) => `<span class="hero-tech">${t}</span>`).join("");
+
+    // Primary actions (the things a recruiter wants in one tap)
+    const link = (href, label, primary) =>
+      `<a class="hero-action${primary ? " is-primary" : ""}" href="${href}"
+          ${href.startsWith("http") ? `target="_blank" rel="noopener"` : ""}>${label}</a>`;
+    const li = c.links.find((l) => l.label === "LinkedIn");
+    const cv = c.links.find((l) => l.label === "Résumé");
+    document.getElementById("hero-actions").innerHTML = [
+      link(`mailto:${c.email}`, "✉ Email", true),
+      li ? link(li.href, "in · LinkedIn") : "",
+      cv ? link(cv.href, "↓ Résumé PDF") : "",
+    ].join("");
+  })();
 
   /* ---- engine ---- */
   const engine = new CityEngine(canvas, CITY.districts, {
@@ -630,6 +662,40 @@
       .map((l) => `<a href="${l.href}" target="_blank" rel="noopener">${l.label}</a>`).join("") +
       `<a href="mailto:${CITY.contact.email}">Email</a>`;
   }
+
+  /* ---- "Hire me" pill: always one tap from contacting Akshat ---- */
+  (function hirePill() {
+    const root = document.getElementById("hire");
+    if (!root) return;
+    const toggle = document.getElementById("hire-toggle");
+    const menu = document.getElementById("hire-menu");
+    const c = CITY.contact;
+    const li = c.links.find((l) => l.label === "LinkedIn");
+    const cv = c.links.find((l) => l.label === "Résumé");
+    const gh = c.links.find((l) => l.label === "GitHub");
+    const item = (href, label, target) => `
+      <a class="hire-item" href="${href}"${target ? ' target="_blank" rel="noopener"' : ""} role="menuitem">${label}</a>`;
+    menu.innerHTML = [
+      item(`mailto:${c.email}`, "✉ Email akshatshukla.work411@gmail.com"),
+      li ? item(li.href, "in · LinkedIn", true) : "",
+      cv ? item(cv.href, "↓ Résumé PDF", true) : "",
+      gh ? item(gh.href, "</> GitHub", true) : "",
+      item(`/resume`, "📄 Plain HTML résumé"),
+    ].join("");
+
+    let open = false;
+    function setOpen(v) {
+      open = v;
+      root.classList.toggle("is-open", v);
+      toggle.setAttribute("aria-expanded", String(v));
+      menu.setAttribute("aria-hidden", String(!v));
+    }
+    toggle.addEventListener("click", () => setOpen(!open));
+    document.addEventListener("click", (e) => {
+      if (open && !root.contains(e.target)) setOpen(false);
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && open) setOpen(false); });
+  })();
 
   /* ---- NIGHT.RADIO — corner ambient music widget ---- */
   (function radio() {

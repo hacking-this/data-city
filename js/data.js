@@ -8,6 +8,21 @@ const CITY = {
     name: "Akshat Shukla",
     role: "Data Engineer · AI Builder",
     tagline: "Building cities powered by data.",
+    // recruiter-screening card content (visible on first paint, zero clicks)
+    status: "Open to senior Data Eng / AI Eng roles",
+    location: "Bengaluru, India",
+    remote: "Remote OK",
+    current: {
+      role: "Data Engineer",
+      org: "EY Global Delivery Services",
+      period: "Feb 2024 – present",
+    },
+    stats: [
+      { v: "25M+", k: "records / day" },
+      { v: "40%", k: "faster pipelines" },
+      { v: "75%", k: "less reprocessing" },
+    ],
+    stack: ["Databricks", "Apache Spark", "PySpark", "Snowflake", "Iceberg", "Python", "SQL", "Airflow", "Azure"],
   },
 
   districts: [
