@@ -31,6 +31,40 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- Schema.org Person — surfaces rich data when recruiters Google the name -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Akshat Shukla",
+    "jobTitle": "Data Engineer",
+    "description": "Data Engineer at EY Global Delivery Services. Builds scalable ETL on Databricks, Apache Spark, and Snowflake — processing 25M+ records daily, with 40% faster pipelines and 75% less reprocessing via Apache Iceberg.",
+    "email": "akshatshukla.work411@gmail.com",
+    "url": "https://data-city.vercel.app/",
+    "image": "https://data-city.vercel.app/assets/og.png",
+    "sameAs": [
+      "https://www.linkedin.com/in/akshatshukla411",
+      "https://github.com/hacking-this"
+    ],
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Bengaluru",
+      "addressRegion": "Karnataka",
+      "addressCountry": "IN"
+    },
+    "worksFor": { "@type": "Organization", "name": "EY Global Delivery Services" },
+    "alumniOf": { "@type": "CollegeOrUniversity", "name": "Vellore Institute of Technology" },
+    "knowsAbout": ["Databricks","Apache Spark","PySpark","Snowflake","Apache Iceberg","Delta Lake","Python","SQL","Apache Airflow","Azure","AWS","ETL","Data Warehousing","LLMs","MCP"],
+    "hasCredential": [
+      "Databricks Certified Data Engineer Professional",
+      "Databricks Certified Data Engineer Associate",
+      "Microsoft Certified: Azure AI Fundamentals (AI-900)",
+      "Microsoft Certified: Azure Fundamentals (AZ-900)",
+      "Microsoft Certified: GitHub Copilot (GH-300)"
+    ]
+  }
+  </script>
 </head>
 <body>
   <!-- ambient backdrop -->
@@ -51,30 +85,58 @@
     </svg>
   </button>
 
+  <!-- Persistent "hire me" pill: visible after the hero is dismissed,
+       so a hiring manager deep in the city is always one tap away from
+       contacting Akshat. Hidden while a district panel is open. -->
+  <aside id="hire" class="hire" aria-label="Contact">
+    <button id="hire-toggle" class="hire-pill" aria-expanded="false" aria-controls="hire-menu">
+      <span class="hire-dot"></span>
+      <span class="hire-pill-label">Open to roles</span>
+      <span class="hire-pill-sep">·</span>
+      <span class="hire-pill-cta">Get in touch</span>
+    </button>
+    <div id="hire-menu" class="hire-menu" role="menu" aria-hidden="true"></div>
+  </aside>
+
   <!-- ground hint -->
   <div class="ground-hint" aria-hidden="true">
     <span>Drag to explore · scroll to zoom · click a district</span>
   </div>
 
   <!-- hero overlay -->
+  <!-- The hero IS the recruiter screening card. Everything a recruiter
+       needs to forward this candidate is visible in <15s without a click.
+       The cinematic city is the secondary CTA at the bottom. -->
   <section id="hero" class="hero">
     <div class="hero-inner">
-      <div class="hero-eyebrow">
-        <span class="pulse-dot"></span> SYSTEM ONLINE — RENDERING INFRASTRUCTURE
+      <div class="hero-eyebrow" id="hero-status">
+        <span class="pulse-dot"></span>
+        <span id="hero-status-text"></span>
+        <span class="hero-eyebrow-sep">·</span>
+        <span id="hero-location"></span>
       </div>
+
       <h1 id="hero-name" class="hero-name"></h1>
       <div id="hero-role" class="hero-role"></div>
-      <p id="hero-tag" class="hero-tag"></p>
-      <button id="enter" class="enter-btn">
-        <span>Enter the city</span>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+
+      <div class="hero-current" id="hero-current"></div>
+
+      <div class="hero-stats" id="hero-stats" aria-label="Impact metrics"></div>
+
+      <div class="hero-stack" id="hero-stack" aria-label="Core stack"></div>
+
+      <div class="hero-actions" id="hero-actions"></div>
+
+      <button id="enter" class="enter-btn hero-secondary">
+        <span>Explore the city</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
+
       <div class="hero-foot">
-        Eight districts · one engineer · built from data infrastructure
-        <span class="hero-sep">·</span>
-        <a class="hero-quiet-link" href="/resume">In a hurry? Just the facts →</a>
+        Forward this to a hiring manager — they get a 5-min interactive city,
+        you get a 15-second card. <a class="hero-quiet-link" href="/resume">Plain HTML résumé →</a>
       </div>
     </div>
   </section>

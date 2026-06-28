@@ -162,17 +162,20 @@ body.panel-open .ground-hint { opacity: 0; }
 }
 .hero.dismiss { opacity: 0; backdrop-filter: blur(0); pointer-events: none; }
 .hero-inner {
-  text-align: center; max-width: 760px;
-  animation: heroIn 1.2s var(--ease) both;
+  text-align: center; max-width: 780px; width: 100%;
+  animation: heroIn 0.9s var(--ease) both;
 }
-@keyframes heroIn { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes heroIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+/* Status chip (eyebrow): "Open to roles · Bengaluru · Remote OK" */
 .hero-eyebrow {
-  display: inline-flex; align-items: center; gap: 9px;
+  display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;
   font-family: "JetBrains Mono", monospace;
-  font-size: 11px; letter-spacing: 0.22em; color: var(--ink-dim);
-  padding: 8px 16px; border: 1px solid var(--line); border-radius: 100px;
-  background: rgba(255,255,255,0.02);
+  font-size: 11px; letter-spacing: 0.2em; color: var(--ink);
+  padding: 8px 16px; border: 1px solid color-mix(in srgb, #19e3a0 38%, var(--line));
+  border-radius: 100px; background: rgba(25,227,160,0.04);
 }
+.hero-eyebrow-sep { color: var(--ink-faint); }
 .pulse-dot {
   width: 7px; height: 7px; border-radius: 50%; background: #19e3a0;
   box-shadow: 0 0 0 0 rgba(25,227,160,0.6); animation: pulse 2s infinite;
@@ -182,46 +185,121 @@ body.panel-open .ground-hint { opacity: 0; }
   70% { box-shadow: 0 0 0 9px rgba(25,227,160,0); }
   100% { box-shadow: 0 0 0 0 rgba(25,227,160,0); }
 }
+
 .hero-name {
   font-family: "Sora", sans-serif; font-weight: 800;
-  font-size: clamp(48px, 9vw, 104px);
+  font-size: clamp(40px, 8vw, 86px);
   line-height: 0.98; letter-spacing: -0.03em;
-  margin: 26px 0 14px;
+  margin: 20px 0 10px;
   background: linear-gradient(180deg, #ffffff 0%, #c8d4ff 60%, #8ea2e6 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
   text-shadow: 0 0 60px rgba(127,224,255,0.18);
 }
 .hero-role {
   font-family: "JetBrains Mono", monospace;
-  font-size: clamp(13px, 2vw, 16px); letter-spacing: 0.3em;
+  font-size: clamp(12px, 1.6vw, 15px); letter-spacing: 0.28em;
   color: var(--glow); text-transform: uppercase;
   text-shadow: 0 0 22px rgba(127,224,255,0.4);
 }
-.hero-tag {
-  font-size: clamp(18px, 3vw, 26px); color: var(--ink-dim);
-  margin: 22px auto 0; max-width: 520px; line-height: 1.4; font-weight: 400;
+
+/* "Data Engineer @ EY Global Delivery Services · Feb 2024 – present" */
+.hero-current {
+  margin-top: 16px; font-size: clamp(13.5px, 1.8vw, 15.5px); color: var(--ink-dim);
 }
-.enter-btn {
-  margin-top: 40px;
-  display: inline-flex; align-items: center; gap: 10px;
-  font-family: "Inter", sans-serif; font-size: 15px; font-weight: 600;
-  color: #06070f; cursor: pointer;
-  padding: 15px 28px; border: 0; border-radius: 100px;
-  background: linear-gradient(180deg, #eaf4ff, #b9d4ff);
-  box-shadow: 0 12px 40px rgba(127,200,255,0.35), inset 0 1px 0 rgba(255,255,255,0.8);
-  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+.hero-current-role { color: var(--ink); font-weight: 600; }
+.hero-current-org { color: var(--ink); font-weight: 500; }
+.hero-current-sep { color: var(--ink-faint); margin: 0 2px; }
+.hero-current-period { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--ink-faint); letter-spacing: 0.04em; }
+
+/* Impact stats: 25M+/day, 40%, 75% */
+.hero-stats {
+  display: flex; justify-content: center; gap: 10px; margin-top: 22px; flex-wrap: wrap;
 }
-.enter-btn:hover { transform: translateY(-2px); box-shadow: 0 18px 54px rgba(127,200,255,0.5); }
-.enter-btn svg { transition: transform 0.3s var(--ease); }
-.enter-btn:hover svg { transform: translateX(4px); }
+.hero-stat {
+  padding: 11px 18px; border-radius: 12px; min-width: 130px;
+  background: rgba(255,255,255,0.025); border: 1px solid var(--line);
+}
+.hero-stat-v {
+  font-family: "Sora", sans-serif; font-weight: 700; font-size: 22px;
+  background: linear-gradient(180deg, #fff, #7fe0ff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero-stat-k { font-size: 11.5px; color: var(--ink-faint); margin-top: 2px; letter-spacing: 0.04em; }
+
+/* Stack chips: Databricks · Spark · ... */
+.hero-stack {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+  margin-top: 22px;
+}
+.hero-tech {
+  font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--ink-dim);
+  padding: 5px 11px; border-radius: 7px;
+  background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+}
+
+/* Primary CTAs: Email · LinkedIn · Résumé */
+.hero-actions {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 26px;
+}
+.hero-action {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: "Inter", sans-serif; font-size: 14px; font-weight: 600;
+  text-decoration: none; cursor: pointer;
+  padding: 12px 20px; border-radius: 100px;
+  color: var(--ink); background: rgba(255,255,255,0.045); border: 1px solid var(--line);
+  transition: transform 0.2s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.hero-action:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--glow) 55%, transparent);
+  background: rgba(255,255,255,0.07);
+}
+.hero-action.is-primary {
+  color: #06070f; background: linear-gradient(180deg, #eaf4ff, #b9d4ff); border: 0;
+  box-shadow: 0 10px 30px rgba(127,200,255,0.32), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+.hero-action.is-primary:hover {
+  box-shadow: 0 14px 40px rgba(127,200,255,0.5), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+/* Secondary CTA: explore the city — quieter than the contact actions */
+.enter-btn.hero-secondary {
+  margin-top: 22px;
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: "Inter", sans-serif; font-size: 13.5px; font-weight: 500;
+  color: var(--ink-dim); cursor: pointer;
+  padding: 10px 18px; border: 1px solid var(--line); border-radius: 100px;
+  background: transparent; box-shadow: none;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.enter-btn.hero-secondary:hover {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--glow) 50%, transparent);
+  background: rgba(255,255,255,0.03);
+  transform: none;
+}
+.enter-btn.hero-secondary svg { transition: transform 0.2s var(--ease); }
+.enter-btn.hero-secondary:hover svg { transform: translateX(3px); }
+
 .hero-foot {
-  margin-top: 30px; font-size: 12px; color: var(--ink-faint);
-  letter-spacing: 0.06em;
-  display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px;
+  margin-top: 36px; font-size: 12px; color: var(--ink-faint);
+  line-height: 1.6; max-width: 440px; margin-left: auto; margin-right: auto;
 }
-.hero-sep { color: var(--line); }
-.hero-quiet-link { color: var(--ink-dim); text-decoration: none; transition: color 0.2s; }
-.hero-quiet-link:hover { color: var(--glow); }
+.hero-quiet-link {
+  color: var(--glow); text-decoration: none; font-weight: 500;
+  transition: color 0.2s;
+}
+.hero-quiet-link:hover { color: #fff; }
+
+@media (max-width: 540px) {
+  .hero-name { font-size: clamp(36px, 12vw, 56px); margin-top: 18px; }
+  .hero-stats { gap: 6px; }
+  .hero-stat { padding: 9px 12px; min-width: 0; flex: 1 1 90px; }
+  .hero-stat-v { font-size: 18px; }
+  .hero-current { font-size: 12.5px; }
+  .hero-action { font-size: 13px; padding: 10px 16px; }
+  .hero-foot { font-size: 11px; margin-top: 28px; }
+}
 
 /* ---- scrim ----------------------------------------------------------- */
 .scrim {
@@ -694,6 +772,64 @@ body.panel-open .contact { opacity: 0; pointer-events: none; }
 }
 .contact-links a:hover { color: var(--ink); border-color: rgba(127,224,255,0.4); box-shadow: 0 0 18px rgba(127,224,255,0.18); }
 
+/* ---- "Hire me" pill — persistent contact CTA after hero is dismissed ---- */
+.hire {
+  position: fixed; left: 50%; bottom: 24px; z-index: 30;
+  transform: translateX(-50%) translateY(8px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.6s var(--ease) 0.8s, transform 0.6s var(--ease) 0.8s;
+}
+body.entered .hire { opacity: 1; transform: translateX(-50%); pointer-events: auto; }
+body.panel-open .hire { opacity: 0; pointer-events: none; }
+
+.hire-pill {
+  display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+  font: inherit; padding: 9px 16px; border-radius: 100px;
+  background: var(--glass); backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid color-mix(in srgb, #19e3a0 35%, var(--line));
+  color: var(--ink); font-size: 13px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 22px rgba(25,227,160,0.12);
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s var(--ease);
+}
+.hire-pill:hover {
+  border-color: color-mix(in srgb, #19e3a0 65%, transparent);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.5), 0 0 32px rgba(25,227,160,0.28);
+  transform: translateY(-1px);
+}
+.hire-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #19e3a0;
+  box-shadow: 0 0 0 0 rgba(25,227,160,0.55);
+  animation: pulse 2s infinite;
+  flex-shrink: 0;
+}
+.hire-pill-label {
+  font-family: "JetBrains Mono", monospace; font-size: 11px;
+  letter-spacing: 0.18em; color: var(--ink-dim);
+}
+.hire-pill-sep { color: var(--ink-faint); }
+.hire-pill-cta { color: var(--ink); font-weight: 600; }
+
+.hire-menu {
+  position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%) translateY(6px);
+  width: 280px;
+  padding: 8px; border-radius: 14px;
+  background: linear-gradient(180deg, rgba(13,16,33,0.96), rgba(8,10,22,0.98));
+  backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+}
+.hire.is-open .hire-menu {
+  opacity: 1; transform: translateX(-50%); pointer-events: auto;
+}
+.hire-item {
+  display: block; padding: 10px 13px; border-radius: 9px;
+  font-size: 13.5px; color: var(--ink); text-decoration: none;
+  transition: background 0.2s var(--ease), color 0.2s;
+}
+.hire-item:hover { background: rgba(255,255,255,0.05); color: var(--glow); }
+
 /* ---- NIGHT.RADIO — corner ambient music widget ---- */
 .radio {
   --radio-accent: #ff48b0;
@@ -934,6 +1070,12 @@ body.panel-open .radio { opacity: 0; pointer-events: none; }
   /* Resize handle is mouse-only; hide it on mobile so it doesn't sit in
      the touch surface for the close button. */
   .panel-resize { display: none; }
+  /* Hire pill on mobile — sits above the bottom contact strip; tighter copy */
+  .hire { bottom: 76px; }
+  .hire-pill { padding: 8px 13px; font-size: 12px; }
+  .hire-pill-label { display: none; }
+  .hire-pill-sep { display: none; }
+  .hire-menu { width: 240px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
